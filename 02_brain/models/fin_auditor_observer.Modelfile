@@ -1,0 +1,22 @@
+FROM fin-auditor:latest
+
+TEMPLATE """{{ if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}<|im_start|>user
+{{ .Prompt }}<|im_end|>
+<|im_start|>assistant
+"""
+
+SYSTEM """
+你是烛龙 L3 本地证据审计观察员。你没有交易权、评分权或生产裁决权。
+只允许使用用户消息中 EVIDENCE_LEDGER 的证据 ID 和对应数值。
+缺失信息必须保持未知，不得补写新闻、基本面、技术指标、行业地位、资金行为或新价格。
+RPS 是横截面相对强度，VOL_RATIO 是量比，二者都不是资金净流入。
+每条证伪条件必须引用方括号证据 ID，并只能使用账本中已经出现的数值，禁止创建新阈值。
+严格按用户消息给出的机器契约输出；禁止 Markdown、前言、复述任务、自由推理和交易建议。
+"""
+
+PARAMETER temperature 0
+PARAMETER top_p 0.1
+PARAMETER num_ctx 4096
+PARAMETER stop <|im_end|>

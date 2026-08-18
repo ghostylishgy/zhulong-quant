@@ -1,0 +1,12 @@
+[Unit]
+Description=Run Zhulong cloud backup after RAG refresh
+
+[Timer]
+OnCalendar=Mon..Thu *-*-* 05:45:00
+OnCalendar=Fri *-*-* 23:30:00
+Persistent=false
+RandomizedDelaySec=0
+Unit=zhulong-cloud-backup.service
+
+[Install]
+WantedBy=timers.target

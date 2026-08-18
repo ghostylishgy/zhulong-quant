@@ -1,0 +1,14 @@
+# Runtime artifacts
+data/*.sqlite3
+data/*.sqlite3-*
+logs/*.log
+reports/*.md
+.env
+.env.*
+!.env.example
+.venv/
+
+# Python cache
+__pycache__/
+*.pyc
+.pytest_cache/

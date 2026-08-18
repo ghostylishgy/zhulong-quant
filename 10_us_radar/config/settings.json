@@ -1,0 +1,32 @@
+{
+  "module_name": "us_radar",
+  "module_mode": "research_validation",
+  "database_path": "10_us_radar/data/us_radar.sqlite3",
+  "report_dir": "10_us_radar/reports",
+  "log_dir": "10_us_radar/logs",
+  "sec": {
+    "user_agent": "SET_US_RADAR_SEC_USER_AGENT",
+    "base_atom_url": "https://www.sec.gov/cgi-bin/browse-edgar",
+    "default_limit": 40,
+    "forms": ["8-K", "4", "13F-HR"]
+  },
+  "feature_flags": {
+    "enable_research_validation": true,
+    "enable_cn_transmission": true,
+    "enable_us_shadow_portfolio": false,
+    "enable_broker_execution": false
+  },
+  "validation": {
+    "horizons_days": [1, 3, 5, 20],
+    "default_benchmarks": {
+      "US": "QQQ",
+      "CN": "000300.SH"
+    },
+    "target_roles": ["primary", "transmission", "second_order", "benchmark", "hedge"]
+  },
+  "scheduling": {
+    "avoid_heavy_tasks_bj": "09:15-15:10",
+    "us_event_window_bj": "21:30-06:00",
+    "daily_report_window_bj": "06:30-07:30"
+  }
+}

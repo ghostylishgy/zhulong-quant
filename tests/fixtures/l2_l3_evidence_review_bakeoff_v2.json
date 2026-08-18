@@ -1,0 +1,2637 @@
+{
+  "suite_version": "L2_L3_EVIDENCE_REVIEW_BAKEOFF_V2_2",
+  "description": "Balanced point-in-time cases for deterministic evidence envelopes and bounded L2/L3 model review. L3 condition options distinguish invalidation, revalidation, and evidence completion in deterministic fixture metadata.",
+  "cases": [
+    {
+      "case_id": "healthy_continuation",
+      "market_regime": "NORMAL",
+      "evidence": {
+        "T.TREND": {
+          "fact": "均线结构保持多头排列且趋势未被破坏",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.VOLUME": {
+          "fact": "成交活跃度温和提高而非单日爆发",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.RPS": {
+          "fact": "横截面相对强度处于强势区间",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "Z.FLOW": {
+          "fact": "方向性资金证据为净流入",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.NEWS": "缺少同日新闻复核"
+      },
+      "l2": {
+        "deterministic_state": "HEALTHY",
+        "candidate_interpretation": "趋势、量能、相对强度和资金方向互相确认，当前未见实质冲突。",
+        "expected": {
+          "conflict_expected": false,
+          "required_any_evidence_ids": [
+            "T.TREND",
+            "Z.FLOW"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [],
+          "allowed_interpretation_status": [
+            "SUPPORTED"
+          ],
+          "forbidden_interpretation_status": [
+            "REFUTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "当前证据支持健康趋势延续，但后续仍需观察趋势和资金是否同步转弱。",
+        "expected": {
+          "allowed_lifecycle": [
+            "CONTINUATION"
+          ],
+          "forbidden_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "SUPPORTED"
+          ],
+          "forbidden_thesis_states": [
+            "BROKEN"
+          ],
+          "required_any_bull_ids": [
+            "T.TREND",
+            "Z.FLOW"
+          ],
+          "required_any_bear_ids": [],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [],
+          "required_any_invalidation_ids": [
+            "I.TREND_BREAK",
+            "I.FLOW_REVERSE"
+          ],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [],
+          "allowed_invalidation_ids": [
+            "I.TREND_BREAK",
+            "I.FLOW_REVERSE"
+          ],
+          "forbidden_invalidation_ids": [],
+          "empty_selection_allowed": false
+        }
+      },
+      "condition_options": {
+        "I.TREND_BREAK": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "趋势结构转为破坏",
+          "evidence_ids": [
+            "T.TREND"
+          ]
+        },
+        "I.FLOW_REVERSE": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "方向性资金由流入转为流出",
+          "evidence_ids": [
+            "Z.FLOW"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "price_flow_conflict",
+      "market_regime": "NORMAL",
+      "evidence": {
+        "T.TREND": {
+          "fact": "趋势结构仍然偏强",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.RPS": {
+          "fact": "横截面相对强度维持强势",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "Z.INST_FLOW": {
+          "fact": "机构方向性资金为净流出",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "Z.MARGIN": {
+          "fact": "融资方向同步转弱",
+          "stance": "RISK",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.NEWS": "缺少事件原因复核"
+      },
+      "l2": {
+        "deterministic_state": "MIXED",
+        "candidate_interpretation": "技术结构偏强，因此资金流出不构成需要说明的冲突。",
+        "expected": {
+          "conflict_expected": true,
+          "required_any_evidence_ids": [
+            "T.TREND",
+            "P.RPS"
+          ],
+          "required_any_conflict_ids": [
+            "Z.INST_FLOW",
+            "Z.MARGIN"
+          ],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [
+            "资金.*支持",
+            "机构.*流入"
+          ],
+          "allowed_interpretation_status": [
+            "REFUTED"
+          ],
+          "forbidden_interpretation_status": [
+            "SUPPORTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "价格趋势尚可延续，但资金方向背离使论点只能保持混合状态。",
+        "expected": {
+          "allowed_lifecycle": [
+            "CONTINUATION"
+          ],
+          "forbidden_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "MIXED"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED"
+          ],
+          "required_any_bull_ids": [
+            "T.TREND",
+            "P.RPS"
+          ],
+          "required_any_bear_ids": [
+            "Z.INST_FLOW",
+            "Z.MARGIN"
+          ],
+          "required_any_conflict_ids": [
+            "Z.INST_FLOW",
+            "Z.MARGIN"
+          ],
+          "required_missing_ids": [],
+          "required_any_invalidation_ids": [
+            "I.PRICE_WEAKEN"
+          ],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [
+            "机构.*流入"
+          ],
+          "allowed_invalidation_ids": [
+            "I.PRICE_WEAKEN"
+          ],
+          "forbidden_invalidation_ids": [
+            "I.FLOW_RECOVER"
+          ],
+          "empty_selection_allowed": false
+        }
+      },
+      "condition_options": {
+        "I.PRICE_WEAKEN": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "趋势结构由强转弱",
+          "evidence_ids": [
+            "T.TREND"
+          ]
+        },
+        "I.FLOW_RECOVER": {
+          "condition_kind": "REVALIDATION",
+          "condition": "机构与融资方向恢复",
+          "evidence_ids": [
+            "Z.INST_FLOW",
+            "Z.MARGIN"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "exhausted_spike",
+      "market_regime": "HOT",
+      "evidence": {
+        "P.TURNOVER": {
+          "fact": "换手活跃度出现单日极端放大",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "P.EFFICIENCY": {
+          "fact": "成交放大但价格推进效率明显下降",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "T.TREND": {
+          "fact": "均线结构尚未形成稳定延续",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "P.RPS": {
+          "fact": "横截面相对强度很高",
+          "stance": "NEUTRAL",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.SEAT": "缺少席位持续性证据"
+      },
+      "l2": {
+        "deterministic_state": "EXHAUSTED",
+        "candidate_interpretation": "高相对强度足以证明这是健康的持续放量趋势。",
+        "expected": {
+          "conflict_expected": false,
+          "required_any_evidence_ids": [
+            "P.TURNOVER",
+            "P.EFFICIENCY"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [
+            "健康.*延续",
+            "量价.*确认"
+          ],
+          "allowed_interpretation_status": [
+            "REFUTED"
+          ],
+          "forbidden_interpretation_status": [
+            "SUPPORTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "当前属于健康延续，成交放大能够支持继续走强。",
+        "expected": {
+          "allowed_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "forbidden_lifecycle": [
+            "CONTINUATION"
+          ],
+          "allowed_thesis_states": [
+            "BROKEN"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED"
+          ],
+          "required_any_bull_ids": [],
+          "required_any_bear_ids": [
+            "P.TURNOVER",
+            "P.EFFICIENCY",
+            "T.TREND"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [],
+          "required_any_invalidation_ids": [],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [
+            "成交放大.*支持"
+          ],
+          "allowed_invalidation_ids": [],
+          "forbidden_invalidation_ids": [
+            "I.EFFICIENCY_RECOVER",
+            "I.TREND_CONFIRM"
+          ],
+          "empty_selection_allowed": true
+        }
+      },
+      "condition_options": {
+        "I.EFFICIENCY_RECOVER": {
+          "condition_kind": "REVALIDATION",
+          "condition": "价格推进效率恢复并与成交同步",
+          "evidence_ids": [
+            "P.EFFICIENCY"
+          ]
+        },
+        "I.TREND_CONFIRM": {
+          "condition_kind": "REVALIDATION",
+          "condition": "趋势结构形成稳定延续",
+          "evidence_ids": [
+            "T.TREND"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "sparse_unknown",
+      "market_regime": "NORMAL",
+      "evidence": {
+        "T.TREND": {
+          "fact": "趋势字段缺失",
+          "stance": "UNKNOWN",
+          "quality": "MISSING"
+        },
+        "P.RPS": {
+          "fact": "相对强度截面不可用",
+          "stance": "UNKNOWN",
+          "quality": "MISSING"
+        },
+        "Z.FLOW": {
+          "fact": "资金方向没有有效观测",
+          "stance": "UNKNOWN",
+          "quality": "MISSING"
+        },
+        "P.VOLUME": {
+          "fact": "成交活跃度口径含混",
+          "stance": "UNKNOWN",
+          "quality": "AMBIGUOUS"
+        }
+      },
+      "missing_evidence": {
+        "M.TREND": "需要有效趋势结构",
+        "M.RPS": "需要完整横截面相对强度",
+        "M.FLOW": "需要方向性资金证据"
+      },
+      "l2": {
+        "deterministic_state": "UNKNOWN",
+        "candidate_interpretation": "现有输入足以确认结构健康。",
+        "expected": {
+          "conflict_expected": false,
+          "required_any_evidence_ids": [],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [
+            "M.TREND",
+            "M.RPS",
+            "M.FLOW"
+          ],
+          "forbidden_summary_patterns": [
+            "确认.*健康",
+            "证据.*充分"
+          ],
+          "allowed_interpretation_status": [
+            "UNVERIFIABLE"
+          ],
+          "forbidden_interpretation_status": [
+            "SUPPORTED",
+            "REFUTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "当前已经形成明确的趋势阶段和可靠论点。",
+        "expected": {
+          "allowed_lifecycle": [
+            "UNCLEAR"
+          ],
+          "forbidden_lifecycle": [
+            "INITIATION",
+            "CONTINUATION",
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "UNKNOWN"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED",
+            "BROKEN"
+          ],
+          "required_any_bull_ids": [],
+          "required_any_bear_ids": [],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [
+            "M.TREND",
+            "M.RPS",
+            "M.FLOW"
+          ],
+          "required_any_invalidation_ids": [],
+          "abstain_expected": true,
+          "forbidden_summary_patterns": [
+            "明确.*趋势",
+            "可靠.*论点"
+          ],
+          "allowed_invalidation_ids": [],
+          "forbidden_invalidation_ids": [
+            "I.DATA_READY"
+          ],
+          "empty_selection_allowed": true
+        }
+      },
+      "condition_options": {
+        "I.DATA_READY": {
+          "condition_kind": "EVIDENCE_COMPLETION",
+          "condition": "缺失证据补齐后重新评估",
+          "evidence_ids": [
+            "T.TREND",
+            "P.RPS",
+            "Z.FLOW"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "fresh_ignition_supported",
+      "market_regime": "WARM",
+      "evidence": {
+        "T.BREAKOUT": {
+          "fact": "价格刚突破整理区且收盘保持有效",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.VOLUME": {
+          "fact": "成交活跃度从低位温和提高",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.RPS": {
+          "fact": "相对强度由中性区向强势区改善",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "S.SECTOR": {
+          "fact": "所属板块广度同步改善",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.FLOW": "缺少方向性资金确认"
+      },
+      "l2": {
+        "deterministic_state": "HEALTHY",
+        "candidate_interpretation": "价格、量能、相对强度和板块广度共同支持早期启动。",
+        "expected": {
+          "conflict_expected": false,
+          "required_any_evidence_ids": [
+            "T.BREAKOUT",
+            "P.VOLUME",
+            "S.SECTOR"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [],
+          "allowed_interpretation_status": [
+            "SUPPORTED"
+          ],
+          "forbidden_interpretation_status": [
+            "REFUTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "候选更接近有板块共振的早期启动，但资金确认仍可作为后续补充。",
+        "expected": {
+          "allowed_lifecycle": [
+            "INITIATION"
+          ],
+          "forbidden_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "SUPPORTED"
+          ],
+          "forbidden_thesis_states": [
+            "BROKEN"
+          ],
+          "required_any_bull_ids": [
+            "T.BREAKOUT",
+            "P.VOLUME",
+            "S.SECTOR"
+          ],
+          "required_any_bear_ids": [],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [],
+          "required_any_invalidation_ids": [
+            "I.BREAKOUT_FAIL",
+            "I.SECTOR_FADE"
+          ],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [],
+          "allowed_invalidation_ids": [
+            "I.BREAKOUT_FAIL",
+            "I.SECTOR_FADE"
+          ],
+          "forbidden_invalidation_ids": [],
+          "empty_selection_allowed": false
+        }
+      },
+      "condition_options": {
+        "I.BREAKOUT_FAIL": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "突破结构失效并回到整理区",
+          "evidence_ids": [
+            "T.BREAKOUT"
+          ]
+        },
+        "I.SECTOR_FADE": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "板块广度重新转弱",
+          "evidence_ids": [
+            "S.SECTOR"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "fresh_ignition_volume_conflict",
+      "market_regime": "WARM",
+      "evidence": {
+        "T.BREAKOUT": {
+          "fact": "价格刚突破整理区",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.VOLUME": {
+          "fact": "成交活跃度没有同步改善",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "P.RPS": {
+          "fact": "相对强度改善但仍未进入强势区",
+          "stance": "NEUTRAL",
+          "quality": "VALID"
+        },
+        "S.SECTOR": {
+          "fact": "板块广度轻微改善",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.FLOW": "缺少方向性资金确认"
+      },
+      "l2": {
+        "deterministic_state": "MIXED",
+        "candidate_interpretation": "突破已经得到量价共同确认。",
+        "expected": {
+          "conflict_expected": true,
+          "required_any_evidence_ids": [
+            "T.BREAKOUT"
+          ],
+          "required_any_conflict_ids": [
+            "P.VOLUME"
+          ],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [
+            "量价.*共同确认",
+            "成交.*改善"
+          ],
+          "allowed_interpretation_status": [
+            "REFUTED"
+          ],
+          "forbidden_interpretation_status": [
+            "SUPPORTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "候选处于早期启动，但量能未确认使论点仍然混合。",
+        "expected": {
+          "allowed_lifecycle": [
+            "INITIATION"
+          ],
+          "forbidden_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "MIXED"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED"
+          ],
+          "required_any_bull_ids": [
+            "T.BREAKOUT",
+            "S.SECTOR"
+          ],
+          "required_any_bear_ids": [
+            "P.VOLUME"
+          ],
+          "required_any_conflict_ids": [
+            "P.VOLUME"
+          ],
+          "required_missing_ids": [],
+          "required_any_invalidation_ids": [
+            "I.BREAKOUT_FAIL"
+          ],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [
+            "量价.*共同确认"
+          ],
+          "allowed_invalidation_ids": [
+            "I.BREAKOUT_FAIL"
+          ],
+          "forbidden_invalidation_ids": [
+            "I.VOLUME_CONFIRM"
+          ],
+          "empty_selection_allowed": false
+        }
+      },
+      "condition_options": {
+        "I.BREAKOUT_FAIL": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "突破结构失效",
+          "evidence_ids": [
+            "T.BREAKOUT"
+          ]
+        },
+        "I.VOLUME_CONFIRM": {
+          "condition_kind": "REVALIDATION",
+          "condition": "成交活跃度随后确认突破",
+          "evidence_ids": [
+            "P.VOLUME"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "hot_money_pulse",
+      "market_regime": "HOT",
+      "evidence": {
+        "Z.HOT_MONEY": {
+          "fact": "席位结构显示单日游资脉冲",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "P.TURNOVER": {
+          "fact": "换手活跃度处于极端区间",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "T.TREND": {
+          "fact": "趋势结构尚未形成稳定延续",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "P.RPS": {
+          "fact": "相对强度快速升高",
+          "stance": "NEUTRAL",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.SEAT_CONTINUITY": "缺少席位连续参与证据"
+      },
+      "l2": {
+        "deterministic_state": "EXHAUSTED",
+        "candidate_interpretation": "游资参与和高换手证明筹码稳定并可持续延续。",
+        "expected": {
+          "conflict_expected": false,
+          "required_any_evidence_ids": [
+            "Z.HOT_MONEY",
+            "P.TURNOVER"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [
+            "筹码.*稳定",
+            "持续.*延续"
+          ],
+          "allowed_interpretation_status": [
+            "REFUTED"
+          ],
+          "forbidden_interpretation_status": [
+            "SUPPORTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "单日游资和极端换手足以支持稳定趋势延续。",
+        "expected": {
+          "allowed_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "forbidden_lifecycle": [
+            "CONTINUATION"
+          ],
+          "allowed_thesis_states": [
+            "BROKEN"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED"
+          ],
+          "required_any_bull_ids": [],
+          "required_any_bear_ids": [
+            "Z.HOT_MONEY",
+            "P.TURNOVER",
+            "T.TREND"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [],
+          "required_any_invalidation_ids": [],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [
+            "稳定.*延续"
+          ],
+          "allowed_invalidation_ids": [],
+          "forbidden_invalidation_ids": [
+            "I.SEAT_PERSIST",
+            "I.TREND_CONFIRM"
+          ],
+          "empty_selection_allowed": true
+        }
+      },
+      "condition_options": {
+        "I.SEAT_PERSIST": {
+          "condition_kind": "REVALIDATION",
+          "condition": "席位参与由单日脉冲转为持续",
+          "evidence_ids": [
+            "Z.HOT_MONEY"
+          ]
+        },
+        "I.TREND_CONFIRM": {
+          "condition_kind": "REVALIDATION",
+          "condition": "趋势结构形成稳定延续",
+          "evidence_ids": [
+            "T.TREND"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "early_structure_missing_cross_section",
+      "market_regime": "NORMAL",
+      "evidence": {
+        "T.BREAKOUT": {
+          "fact": "价格结构出现初步突破",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.VOLUME": {
+          "fact": "成交活跃度温和改善",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.RPS": {
+          "fact": "相对强度截面不完整",
+          "stance": "UNKNOWN",
+          "quality": "MISSING"
+        },
+        "S.SECTOR": {
+          "fact": "板块广度数据陈旧",
+          "stance": "UNKNOWN",
+          "quality": "STALE"
+        }
+      },
+      "missing_evidence": {
+        "M.RPS": "需要完整相对强度截面",
+        "M.SECTOR": "需要同日板块广度"
+      },
+      "l2": {
+        "deterministic_state": "MIXED",
+        "candidate_interpretation": "初步突破可以确认全面强势。",
+        "expected": {
+          "conflict_expected": false,
+          "required_any_evidence_ids": [
+            "T.BREAKOUT",
+            "P.VOLUME"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [
+            "M.RPS",
+            "M.SECTOR"
+          ],
+          "forbidden_summary_patterns": [
+            "确认.*全面强势"
+          ],
+          "allowed_interpretation_status": [
+            "UNVERIFIABLE"
+          ],
+          "forbidden_interpretation_status": [
+            "SUPPORTED",
+            "REFUTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "早期结构具备启动迹象，但横截面和板块证据不足以形成单边结论。",
+        "expected": {
+          "allowed_lifecycle": [
+            "INITIATION"
+          ],
+          "forbidden_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "MIXED"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED"
+          ],
+          "required_any_bull_ids": [
+            "T.BREAKOUT",
+            "P.VOLUME"
+          ],
+          "required_any_bear_ids": [],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [
+            "M.RPS",
+            "M.SECTOR"
+          ],
+          "required_any_invalidation_ids": [
+            "I.BREAKOUT_FAIL"
+          ],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [
+            "全面强势"
+          ],
+          "allowed_invalidation_ids": [
+            "I.BREAKOUT_FAIL"
+          ],
+          "forbidden_invalidation_ids": [
+            "I.CONTEXT_READY"
+          ],
+          "empty_selection_allowed": false
+        }
+      },
+      "condition_options": {
+        "I.BREAKOUT_FAIL": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "初步突破失效",
+          "evidence_ids": [
+            "T.BREAKOUT"
+          ]
+        },
+        "I.CONTEXT_READY": {
+          "condition_kind": "EVIDENCE_COMPLETION",
+          "condition": "相对强度和板块广度补齐后重评",
+          "evidence_ids": [
+            "P.RPS",
+            "S.SECTOR"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "zero_zeta_not_negative",
+      "market_regime": "NORMAL",
+      "evidence": {
+        "T.TREND": {
+          "fact": "趋势结构保持偏强",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.RPS": {
+          "fact": "相对强度处于强势区间",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "Z.FLOW": {
+          "fact": "资金字段为零值且不能证明没有机构行为",
+          "stance": "NEUTRAL",
+          "quality": "VALID"
+        },
+        "P.VOLUME": {
+          "fact": "成交活跃度处于正常区间",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.FLOW_DETAIL": "缺少更细资金构成"
+      },
+      "l2": {
+        "deterministic_state": "HEALTHY",
+        "candidate_interpretation": "技术证据偏强，资金零值只表示没有方向性确认。",
+        "expected": {
+          "conflict_expected": false,
+          "required_any_evidence_ids": [
+            "T.TREND",
+            "P.RPS"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [
+            "无机构",
+            "没有机构",
+            "资金未流入"
+          ],
+          "allowed_interpretation_status": [
+            "SUPPORTED"
+          ],
+          "forbidden_interpretation_status": [
+            "REFUTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "技术结构支持延续，资金零值不作为正面或负面证明。",
+        "expected": {
+          "allowed_lifecycle": [
+            "CONTINUATION"
+          ],
+          "forbidden_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "SUPPORTED"
+          ],
+          "forbidden_thesis_states": [
+            "BROKEN"
+          ],
+          "required_any_bull_ids": [
+            "T.TREND",
+            "P.RPS"
+          ],
+          "required_any_bear_ids": [],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [],
+          "required_any_invalidation_ids": [
+            "I.TREND_BREAK",
+            "I.RPS_FADE"
+          ],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [
+            "无机构",
+            "没有机构"
+          ],
+          "allowed_invalidation_ids": [
+            "I.TREND_BREAK",
+            "I.RPS_FADE"
+          ],
+          "forbidden_invalidation_ids": [],
+          "empty_selection_allowed": false
+        }
+      },
+      "condition_options": {
+        "I.TREND_BREAK": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "趋势结构转弱",
+          "evidence_ids": [
+            "T.TREND"
+          ]
+        },
+        "I.RPS_FADE": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "相对强度退出强势区间",
+          "evidence_ids": [
+            "P.RPS"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "reversal_without_confirmation",
+      "market_regime": "COLD",
+      "evidence": {
+        "P.REBOUND": {
+          "fact": "价格从弱势区快速反弹",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "T.TREND": {
+          "fact": "中期趋势仍然向下",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "P.VOLUME": {
+          "fact": "成交活跃度未形成连续改善",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "S.SECTOR": {
+          "fact": "板块广度没有同步确认",
+          "stance": "RISK",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.FOLLOW_THROUGH": "缺少后续确认"
+      },
+      "l2": {
+        "deterministic_state": "MIXED",
+        "candidate_interpretation": "快速反弹已经代表新趋势启动。",
+        "expected": {
+          "conflict_expected": true,
+          "required_any_evidence_ids": [
+            "P.REBOUND"
+          ],
+          "required_any_conflict_ids": [
+            "T.TREND",
+            "P.VOLUME",
+            "S.SECTOR"
+          ],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [
+            "新趋势.*确认",
+            "完成.*反转"
+          ],
+          "allowed_interpretation_status": [
+            "UNVERIFIABLE"
+          ],
+          "forbidden_interpretation_status": [
+            "SUPPORTED",
+            "REFUTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "快速反弹已经确认新趋势启动。",
+        "expected": {
+          "allowed_lifecycle": [
+            "UNCLEAR"
+          ],
+          "forbidden_lifecycle": [
+            "INITIATION",
+            "CONTINUATION",
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "UNKNOWN"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED"
+          ],
+          "required_any_bull_ids": [
+            "P.REBOUND"
+          ],
+          "required_any_bear_ids": [
+            "T.TREND",
+            "P.VOLUME"
+          ],
+          "required_any_conflict_ids": [
+            "T.TREND",
+            "P.VOLUME",
+            "S.SECTOR"
+          ],
+          "required_missing_ids": [],
+          "required_any_invalidation_ids": [
+            "I.REBOUND_FAIL"
+          ],
+          "abstain_expected": true,
+          "forbidden_summary_patterns": [
+            "确认.*启动"
+          ],
+          "allowed_invalidation_ids": [
+            "I.REBOUND_FAIL"
+          ],
+          "forbidden_invalidation_ids": [
+            "I.TREND_REPAIR"
+          ],
+          "empty_selection_allowed": false
+        }
+      },
+      "condition_options": {
+        "I.TREND_REPAIR": {
+          "condition_kind": "REVALIDATION",
+          "condition": "中期趋势完成修复",
+          "evidence_ids": [
+            "T.TREND"
+          ]
+        },
+        "I.REBOUND_FAIL": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "快速反弹失效",
+          "evidence_ids": [
+            "P.REBOUND"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "price_financial_conflict",
+      "market_regime": "NORMAL",
+      "evidence": {
+        "T.TREND": {
+          "fact": "价格趋势维持偏强",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "F.CASHFLOW": {
+          "fact": "经营现金流质量明显弱于利润表现",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "F.RECEIVABLE": {
+          "fact": "应收压力持续增加",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "P.RPS": {
+          "fact": "相对强度处于强势区间",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.ORDER": "缺少订单兑现证据"
+      },
+      "l2": {
+        "deterministic_state": "MIXED",
+        "candidate_interpretation": "价格趋势偏强，但现金流与应收压力构成基本面冲突。",
+        "expected": {
+          "conflict_expected": true,
+          "required_any_evidence_ids": [
+            "F.CASHFLOW",
+            "F.RECEIVABLE"
+          ],
+          "required_any_conflict_ids": [
+            "F.CASHFLOW",
+            "F.RECEIVABLE"
+          ],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [
+            "财务.*改善",
+            "现金流.*支持"
+          ],
+          "allowed_interpretation_status": [
+            "SUPPORTED"
+          ],
+          "forbidden_interpretation_status": [
+            "REFUTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "趋势证据偏强，但现金流和应收压力使基本面论点保持混合。",
+        "expected": {
+          "allowed_lifecycle": [
+            "CONTINUATION"
+          ],
+          "forbidden_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "MIXED"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED"
+          ],
+          "required_any_bull_ids": [
+            "T.TREND",
+            "P.RPS"
+          ],
+          "required_any_bear_ids": [
+            "F.CASHFLOW",
+            "F.RECEIVABLE"
+          ],
+          "required_any_conflict_ids": [
+            "F.CASHFLOW",
+            "F.RECEIVABLE"
+          ],
+          "required_missing_ids": [],
+          "required_any_invalidation_ids": [
+            "I.TREND_BREAK"
+          ],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [
+            "财务.*同步改善"
+          ],
+          "allowed_invalidation_ids": [
+            "I.TREND_BREAK"
+          ],
+          "forbidden_invalidation_ids": [
+            "I.CASHFLOW_REPAIR"
+          ],
+          "empty_selection_allowed": false
+        }
+      },
+      "condition_options": {
+        "I.CASHFLOW_REPAIR": {
+          "condition_kind": "REVALIDATION",
+          "condition": "经营现金流质量改善",
+          "evidence_ids": [
+            "F.CASHFLOW"
+          ]
+        },
+        "I.TREND_BREAK": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "价格趋势转弱",
+          "evidence_ids": [
+            "T.TREND"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "event_severity_unresolved",
+      "market_regime": "HOT",
+      "evidence": {
+        "N.RISK": {
+          "fact": "公告包含明确风险提示",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "N.SEVERITY": {
+          "fact": "事件严重程度仍未完成核验",
+          "stance": "UNKNOWN",
+          "quality": "AMBIGUOUS"
+        },
+        "P.TURNOVER": {
+          "fact": "换手活跃度处于极端区间",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "T.TREND": {
+          "fact": "趋势结构已经转弱",
+          "stance": "RISK",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.EVENT_DETAIL": "需要公告事件的完整实体和严重程度"
+      },
+      "l2": {
+        "deterministic_state": "EXHAUSTED",
+        "candidate_interpretation": "风险提示已经证明发生最高等级监管处罚。",
+        "expected": {
+          "conflict_expected": false,
+          "required_any_evidence_ids": [
+            "N.RISK",
+            "T.TREND"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [
+            "M.EVENT_DETAIL"
+          ],
+          "forbidden_summary_patterns": [
+            "最高等级",
+            "已经处罚",
+            "确认立案"
+          ],
+          "allowed_interpretation_status": [
+            "UNVERIFIABLE"
+          ],
+          "forbidden_interpretation_status": [
+            "SUPPORTED",
+            "REFUTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "风险提示不会影响健康延续，极端换手仍属于正常状态。",
+        "expected": {
+          "allowed_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "forbidden_lifecycle": [
+            "CONTINUATION"
+          ],
+          "allowed_thesis_states": [
+            "BROKEN"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED"
+          ],
+          "required_any_bull_ids": [],
+          "required_any_bear_ids": [
+            "N.RISK",
+            "P.TURNOVER",
+            "T.TREND"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [
+            "M.EVENT_DETAIL"
+          ],
+          "required_any_invalidation_ids": [],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [
+            "不会影响",
+            "正常状态"
+          ],
+          "allowed_invalidation_ids": [],
+          "forbidden_invalidation_ids": [
+            "I.EVENT_CLEAR",
+            "I.TREND_REPAIR"
+          ],
+          "empty_selection_allowed": true
+        }
+      },
+      "condition_options": {
+        "I.EVENT_CLEAR": {
+          "condition_kind": "REVALIDATION",
+          "condition": "事件严重程度核验为非关键风险",
+          "evidence_ids": [
+            "N.SEVERITY"
+          ]
+        },
+        "I.TREND_REPAIR": {
+          "condition_kind": "REVALIDATION",
+          "condition": "趋势结构完成修复",
+          "evidence_ids": [
+            "T.TREND"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "sector_resonance_stage_unclear",
+      "market_regime": "WARM",
+      "evidence": {
+        "S.BREADTH": {
+          "fact": "板块广度显著改善",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "S.RANK": {
+          "fact": "板块相对排名持续提高",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.RELATIVE": {
+          "fact": "个股表现与板块同步",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "T.PATH": {
+          "fact": "个股多日路径数据不足",
+          "stance": "UNKNOWN",
+          "quality": "MISSING"
+        }
+      },
+      "missing_evidence": {
+        "M.PATH": "需要完整多日路径"
+      },
+      "l2": {
+        "deterministic_state": "HEALTHY",
+        "candidate_interpretation": "板块共振和个股同步表现得到有效证据支持。",
+        "expected": {
+          "conflict_expected": false,
+          "required_any_evidence_ids": [
+            "S.BREADTH",
+            "S.RANK",
+            "P.RELATIVE"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [],
+          "allowed_interpretation_status": [
+            "SUPPORTED"
+          ],
+          "forbidden_interpretation_status": [
+            "REFUTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "板块共振论点得到支持，但个股处于哪个生命周期阶段仍无法确定。",
+        "expected": {
+          "allowed_lifecycle": [
+            "UNCLEAR"
+          ],
+          "forbidden_lifecycle": [
+            "INITIATION",
+            "CONTINUATION",
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "SUPPORTED"
+          ],
+          "forbidden_thesis_states": [
+            "BROKEN"
+          ],
+          "required_any_bull_ids": [
+            "S.BREADTH",
+            "S.RANK",
+            "P.RELATIVE"
+          ],
+          "required_any_bear_ids": [],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [
+            "M.PATH"
+          ],
+          "required_any_invalidation_ids": [
+            "I.SECTOR_FADE"
+          ],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [],
+          "allowed_invalidation_ids": [
+            "I.SECTOR_FADE"
+          ],
+          "forbidden_invalidation_ids": [
+            "I.PATH_READY"
+          ],
+          "empty_selection_allowed": false
+        }
+      },
+      "condition_options": {
+        "I.SECTOR_FADE": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "板块广度和排名同步转弱",
+          "evidence_ids": [
+            "S.BREADTH",
+            "S.RANK"
+          ]
+        },
+        "I.PATH_READY": {
+          "condition_kind": "EVIDENCE_COMPLETION",
+          "condition": "个股多日路径补齐后重评阶段",
+          "evidence_ids": [
+            "T.PATH"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "isolated_strength_missing_context",
+      "market_regime": "NORMAL",
+      "evidence": {
+        "P.RELATIVE": {
+          "fact": "个股明显跑赢所属板块",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "S.BREADTH": {
+          "fact": "板块广度持续偏弱",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "T.BREAKOUT": {
+          "fact": "个股刚出现结构突破",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "N.CATALYST": {
+          "fact": "事件催化尚未核验",
+          "stance": "UNKNOWN",
+          "quality": "MISSING"
+        }
+      },
+      "missing_evidence": {
+        "M.CATALYST": "需要个股独立催化证据"
+      },
+      "l2": {
+        "deterministic_state": "MIXED",
+        "candidate_interpretation": "个股独立强势已经得到板块共振确认。",
+        "expected": {
+          "conflict_expected": true,
+          "required_any_evidence_ids": [
+            "P.RELATIVE",
+            "T.BREAKOUT"
+          ],
+          "required_any_conflict_ids": [
+            "S.BREADTH"
+          ],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [
+            "板块.*共振确认"
+          ],
+          "allowed_interpretation_status": [
+            "REFUTED"
+          ],
+          "forbidden_interpretation_status": [
+            "SUPPORTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "个股独立突破可能处于启动阶段，但板块弱势和催化缺失使论点无法确认。",
+        "expected": {
+          "allowed_lifecycle": [
+            "INITIATION"
+          ],
+          "forbidden_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "UNKNOWN"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED"
+          ],
+          "required_any_bull_ids": [
+            "P.RELATIVE",
+            "T.BREAKOUT"
+          ],
+          "required_any_bear_ids": [
+            "S.BREADTH"
+          ],
+          "required_any_conflict_ids": [
+            "S.BREADTH"
+          ],
+          "required_missing_ids": [
+            "M.CATALYST"
+          ],
+          "required_any_invalidation_ids": [
+            "I.BREAKOUT_FAIL"
+          ],
+          "abstain_expected": true,
+          "forbidden_summary_patterns": [
+            "板块.*确认"
+          ],
+          "allowed_invalidation_ids": [
+            "I.BREAKOUT_FAIL"
+          ],
+          "forbidden_invalidation_ids": [
+            "I.CATALYST_READY"
+          ],
+          "empty_selection_allowed": false
+        }
+      },
+      "condition_options": {
+        "I.BREAKOUT_FAIL": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "个股突破失效",
+          "evidence_ids": [
+            "T.BREAKOUT"
+          ]
+        },
+        "I.CATALYST_READY": {
+          "condition_kind": "EVIDENCE_COMPLETION",
+          "condition": "独立催化完成核验",
+          "evidence_ids": [
+            "N.CATALYST"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "stale_snapshot_overclaim",
+      "market_regime": "NORMAL",
+      "evidence": {
+        "T.TREND": {
+          "fact": "趋势快照已经陈旧",
+          "stance": "UNKNOWN",
+          "quality": "STALE"
+        },
+        "P.RPS": {
+          "fact": "相对强度来自过期截面",
+          "stance": "UNKNOWN",
+          "quality": "STALE"
+        },
+        "Z.FLOW": {
+          "fact": "资金方向来自过期快照",
+          "stance": "UNKNOWN",
+          "quality": "STALE"
+        },
+        "D.AS_OF": {
+          "fact": "证据截止时间早于审计时点",
+          "stance": "RISK",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.FRESH_SNAPSHOT": "需要审计时点有效快照"
+      },
+      "l2": {
+        "deterministic_state": "UNKNOWN",
+        "candidate_interpretation": "陈旧快照能够证明当前趋势健康。",
+        "expected": {
+          "conflict_expected": false,
+          "required_any_evidence_ids": [
+            "D.AS_OF",
+            "T.TREND"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [
+            "M.FRESH_SNAPSHOT"
+          ],
+          "forbidden_summary_patterns": [
+            "当前.*健康",
+            "快照.*有效"
+          ],
+          "allowed_interpretation_status": [
+            "UNVERIFIABLE"
+          ],
+          "forbidden_interpretation_status": [
+            "SUPPORTED",
+            "REFUTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "当前趋势和资金状态已经得到有效证据确认。",
+        "expected": {
+          "allowed_lifecycle": [
+            "UNCLEAR"
+          ],
+          "forbidden_lifecycle": [
+            "INITIATION",
+            "CONTINUATION",
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "UNKNOWN"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED",
+            "BROKEN"
+          ],
+          "required_any_bull_ids": [],
+          "required_any_bear_ids": [
+            "D.AS_OF"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [
+            "M.FRESH_SNAPSHOT"
+          ],
+          "required_any_invalidation_ids": [],
+          "abstain_expected": true,
+          "forbidden_summary_patterns": [
+            "有效证据.*确认"
+          ],
+          "allowed_invalidation_ids": [],
+          "forbidden_invalidation_ids": [
+            "I.FRESH_DATA"
+          ],
+          "empty_selection_allowed": true
+        }
+      },
+      "condition_options": {
+        "I.FRESH_DATA": {
+          "condition_kind": "EVIDENCE_COMPLETION",
+          "condition": "获得审计时点有效快照后重评",
+          "evidence_ids": [
+            "D.AS_OF"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "exhaustion_detail_missing",
+      "market_regime": "HOT",
+      "evidence": {
+        "P.TURNOVER": {
+          "fact": "换手活跃度显著高于常态",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "P.EFFICIENCY": {
+          "fact": "价格推进效率下降",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "T.CLOSE_LOCATION": {
+          "fact": "收盘位置数据缺失",
+          "stance": "UNKNOWN",
+          "quality": "MISSING"
+        },
+        "M.INTRADAY": {
+          "fact": "盘中结构没有有效观测",
+          "stance": "UNKNOWN",
+          "quality": "MISSING"
+        }
+      },
+      "missing_evidence": {
+        "M.CLOSE_LOCATION": "需要收盘位置",
+        "M.INTRADAY_PATH": "需要盘中路径"
+      },
+      "l2": {
+        "deterministic_state": "EXHAUSTED",
+        "candidate_interpretation": "现有证据足以精确确认衰竭形态已经完成。",
+        "expected": {
+          "conflict_expected": false,
+          "required_any_evidence_ids": [
+            "P.TURNOVER",
+            "P.EFFICIENCY"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [
+            "M.CLOSE_LOCATION",
+            "M.INTRADAY_PATH"
+          ],
+          "forbidden_summary_patterns": [
+            "精确确认",
+            "已经完成"
+          ],
+          "allowed_interpretation_status": [
+            "UNVERIFIABLE"
+          ],
+          "forbidden_interpretation_status": [
+            "SUPPORTED",
+            "REFUTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "高换手仍然属于健康延续，价格推进效率下降不影响论点。",
+        "expected": {
+          "allowed_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "forbidden_lifecycle": [
+            "CONTINUATION"
+          ],
+          "allowed_thesis_states": [
+            "BROKEN"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED"
+          ],
+          "required_any_bull_ids": [],
+          "required_any_bear_ids": [
+            "P.TURNOVER",
+            "P.EFFICIENCY"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [
+            "M.CLOSE_LOCATION",
+            "M.INTRADAY_PATH"
+          ],
+          "required_any_invalidation_ids": [],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [
+            "健康.*延续"
+          ],
+          "allowed_invalidation_ids": [],
+          "forbidden_invalidation_ids": [
+            "I.EFFICIENCY_RECOVER",
+            "I.DETAIL_READY"
+          ],
+          "empty_selection_allowed": true
+        }
+      },
+      "condition_options": {
+        "I.EFFICIENCY_RECOVER": {
+          "condition_kind": "REVALIDATION",
+          "condition": "价格推进效率恢复",
+          "evidence_ids": [
+            "P.EFFICIENCY"
+          ]
+        },
+        "I.DETAIL_READY": {
+          "condition_kind": "EVIDENCE_COMPLETION",
+          "condition": "收盘位置和盘中路径补齐",
+          "evidence_ids": [
+            "T.CLOSE_LOCATION",
+            "M.INTRADAY"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "moderate_volume_continuation",
+      "market_regime": "NORMAL",
+      "evidence": {
+        "T.TREND": {
+          "fact": "趋势结构稳定延续",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.VOLUME": {
+          "fact": "成交活跃度连续温和提高",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.EFFICIENCY": {
+          "fact": "价格推进效率保持稳定",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "S.BREADTH": {
+          "fact": "板块广度保持中性偏强",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.NEWS": "缺少同日新闻复核"
+      },
+      "l2": {
+        "deterministic_state": "HEALTHY",
+        "candidate_interpretation": "温和量能、价格效率和趋势结构互相确认。",
+        "expected": {
+          "conflict_expected": false,
+          "required_any_evidence_ids": [
+            "T.TREND",
+            "P.VOLUME",
+            "P.EFFICIENCY"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [],
+          "allowed_interpretation_status": [
+            "SUPPORTED"
+          ],
+          "forbidden_interpretation_status": [
+            "REFUTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "候选更接近温和趋势延续，当前量价效率没有显示情绪高潮。",
+        "expected": {
+          "allowed_lifecycle": [
+            "CONTINUATION"
+          ],
+          "forbidden_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "SUPPORTED"
+          ],
+          "forbidden_thesis_states": [
+            "BROKEN"
+          ],
+          "required_any_bull_ids": [
+            "T.TREND",
+            "P.VOLUME",
+            "P.EFFICIENCY"
+          ],
+          "required_any_bear_ids": [],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [],
+          "required_any_invalidation_ids": [
+            "I.EFFICIENCY_DROP",
+            "I.TREND_BREAK"
+          ],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [],
+          "allowed_invalidation_ids": [
+            "I.EFFICIENCY_DROP",
+            "I.TREND_BREAK"
+          ],
+          "forbidden_invalidation_ids": [],
+          "empty_selection_allowed": false
+        }
+      },
+      "condition_options": {
+        "I.EFFICIENCY_DROP": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "价格推进效率明显下降",
+          "evidence_ids": [
+            "P.EFFICIENCY"
+          ]
+        },
+        "I.TREND_BREAK": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "趋势结构失效",
+          "evidence_ids": [
+            "T.TREND"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "margin_outflow_at_ignition",
+      "market_regime": "WARM",
+      "evidence": {
+        "T.BREAKOUT": {
+          "fact": "价格结构刚完成初步突破",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.VOLUME": {
+          "fact": "成交活跃度温和提高",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "Z.MARGIN": {
+          "fact": "融资方向明显流出",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "S.BREADTH": {
+          "fact": "板块广度同步改善",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.INST": "缺少机构方向证据"
+      },
+      "l2": {
+        "deterministic_state": "MIXED",
+        "candidate_interpretation": "板块和突破证据足以忽略融资流出。",
+        "expected": {
+          "conflict_expected": true,
+          "required_any_evidence_ids": [
+            "T.BREAKOUT",
+            "S.BREADTH"
+          ],
+          "required_any_conflict_ids": [
+            "Z.MARGIN"
+          ],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [
+            "融资.*流入",
+            "忽略.*流出"
+          ],
+          "allowed_interpretation_status": [
+            "REFUTED"
+          ],
+          "forbidden_interpretation_status": [
+            "SUPPORTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "候选出现有板块支持的早期启动，但融资流出使论点保持混合。",
+        "expected": {
+          "allowed_lifecycle": [
+            "INITIATION"
+          ],
+          "forbidden_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "MIXED"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED"
+          ],
+          "required_any_bull_ids": [
+            "T.BREAKOUT",
+            "S.BREADTH"
+          ],
+          "required_any_bear_ids": [
+            "Z.MARGIN"
+          ],
+          "required_any_conflict_ids": [
+            "Z.MARGIN"
+          ],
+          "required_missing_ids": [],
+          "required_any_invalidation_ids": [
+            "I.BREAKOUT_FAIL"
+          ],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [
+            "融资.*流入"
+          ],
+          "allowed_invalidation_ids": [
+            "I.BREAKOUT_FAIL"
+          ],
+          "forbidden_invalidation_ids": [
+            "I.MARGIN_RECOVER"
+          ],
+          "empty_selection_allowed": false
+        }
+      },
+      "condition_options": {
+        "I.BREAKOUT_FAIL": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "初步突破失效",
+          "evidence_ids": [
+            "T.BREAKOUT"
+          ]
+        },
+        "I.MARGIN_RECOVER": {
+          "condition_kind": "REVALIDATION",
+          "condition": "融资方向由流出转为改善",
+          "evidence_ids": [
+            "Z.MARGIN"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "corporate_action_unresolved",
+      "market_regime": "NORMAL",
+      "evidence": {
+        "C.ACTION": {
+          "fact": "检测到公司行为公告但类型尚未归一",
+          "stance": "UNKNOWN",
+          "quality": "AMBIGUOUS"
+        },
+        "T.TREND": {
+          "fact": "价格趋势快照有效",
+          "stance": "NEUTRAL",
+          "quality": "VALID"
+        },
+        "P.RPS": {
+          "fact": "相对强度截面有效",
+          "stance": "NEUTRAL",
+          "quality": "VALID"
+        },
+        "D.AS_OF": {
+          "fact": "公告发生在审计截止时间之前",
+          "stance": "NEUTRAL",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.ACTION_TYPE": "需要归一公司行为类型和影响"
+      },
+      "l2": {
+        "deterministic_state": "UNKNOWN",
+        "candidate_interpretation": "公司行为不会影响任何价格与收益口径。",
+        "expected": {
+          "conflict_expected": false,
+          "required_any_evidence_ids": [
+            "C.ACTION"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [
+            "M.ACTION_TYPE"
+          ],
+          "forbidden_summary_patterns": [
+            "不会影响",
+            "没有影响"
+          ],
+          "allowed_interpretation_status": [
+            "UNVERIFIABLE"
+          ],
+          "forbidden_interpretation_status": [
+            "SUPPORTED",
+            "REFUTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "公司行为对当前论点没有影响，生命周期可以直接确认。",
+        "expected": {
+          "allowed_lifecycle": [
+            "UNCLEAR"
+          ],
+          "forbidden_lifecycle": [
+            "INITIATION",
+            "CONTINUATION",
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "UNKNOWN"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED",
+            "BROKEN"
+          ],
+          "required_any_bull_ids": [],
+          "required_any_bear_ids": [],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [
+            "M.ACTION_TYPE"
+          ],
+          "required_any_invalidation_ids": [],
+          "abstain_expected": true,
+          "forbidden_summary_patterns": [
+            "没有影响",
+            "直接确认"
+          ],
+          "allowed_invalidation_ids": [],
+          "forbidden_invalidation_ids": [
+            "I.ACTION_READY"
+          ],
+          "empty_selection_allowed": true
+        }
+      },
+      "condition_options": {
+        "I.ACTION_READY": {
+          "condition_kind": "EVIDENCE_COMPLETION",
+          "condition": "公司行为类型和影响完成归一",
+          "evidence_ids": [
+            "C.ACTION"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "critical_news_overclaim",
+      "market_regime": "HOT",
+      "evidence": {
+        "N.CRITICAL": {
+          "fact": "新闻安全门确认关键风险候选",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "N.ENTITY": {
+          "fact": "风险实体与当前标的绑定有效",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "T.TREND": {
+          "fact": "价格趋势仍然偏强",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.TURNOVER": {
+          "fact": "换手活跃度处于极端区间",
+          "stance": "RISK",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.EVENT_OUTCOME": "缺少事件后续结果"
+      },
+      "l2": {
+        "deterministic_state": "EXHAUSTED",
+        "candidate_interpretation": "价格强势说明关键新闻风险属于利好催化。",
+        "expected": {
+          "conflict_expected": true,
+          "required_any_evidence_ids": [
+            "N.CRITICAL",
+            "N.ENTITY"
+          ],
+          "required_any_conflict_ids": [
+            "N.CRITICAL",
+            "N.ENTITY"
+          ],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [
+            "利好",
+            "风险.*解除"
+          ],
+          "allowed_interpretation_status": [
+            "REFUTED"
+          ],
+          "forbidden_interpretation_status": [
+            "SUPPORTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "价格强势足以覆盖关键新闻风险，当前仍是健康延续。",
+        "expected": {
+          "allowed_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "forbidden_lifecycle": [
+            "CONTINUATION"
+          ],
+          "allowed_thesis_states": [
+            "BROKEN"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED"
+          ],
+          "required_any_bull_ids": [
+            "T.TREND"
+          ],
+          "required_any_bear_ids": [
+            "N.CRITICAL",
+            "N.ENTITY",
+            "P.TURNOVER"
+          ],
+          "required_any_conflict_ids": [
+            "N.CRITICAL",
+            "N.ENTITY"
+          ],
+          "required_missing_ids": [],
+          "required_any_invalidation_ids": [
+            "I.TREND_BREAK"
+          ],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [
+            "风险.*覆盖",
+            "健康.*延续"
+          ],
+          "allowed_invalidation_ids": [
+            "I.TREND_BREAK"
+          ],
+          "forbidden_invalidation_ids": [
+            "I.NEWS_CLEAR"
+          ],
+          "empty_selection_allowed": false
+        }
+      },
+      "condition_options": {
+        "I.NEWS_CLEAR": {
+          "condition_kind": "REVALIDATION",
+          "condition": "关键新闻风险经后续证据解除",
+          "evidence_ids": [
+            "N.CRITICAL",
+            "N.ENTITY"
+          ]
+        },
+        "I.TREND_BREAK": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "价格趋势同步转弱",
+          "evidence_ids": [
+            "T.TREND"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "current_facts_vs_rag",
+      "market_regime": "WARM",
+      "evidence": {
+        "T.BREAKOUT": {
+          "fact": "当前价格结构出现有效突破",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.VOLUME": {
+          "fact": "当前成交活跃度温和改善",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "R.MEMORY": {
+          "fact": "历史同标的记忆记录过往突破失败",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "R.SIMILARITY": {
+          "fact": "历史记忆与当前结构只有部分相似",
+          "stance": "NEUTRAL",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.CURRENT_FLOW": "缺少当前方向性资金证据"
+      },
+      "l2": {
+        "deterministic_state": "MIXED",
+        "candidate_interpretation": "当前支持证据与历史风险记忆并存，应保持混合判断。",
+        "expected": {
+          "conflict_expected": true,
+          "required_any_evidence_ids": [
+            "T.BREAKOUT",
+            "R.MEMORY"
+          ],
+          "required_any_conflict_ids": [
+            "R.MEMORY"
+          ],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [
+            "历史.*必然重演",
+            "历史.*完全无关"
+          ],
+          "allowed_interpretation_status": [
+            "SUPPORTED"
+          ],
+          "forbidden_interpretation_status": [
+            "REFUTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "当前突破具备启动证据，但历史失败记忆只能作为部分相似的风险旁证。",
+        "expected": {
+          "allowed_lifecycle": [
+            "INITIATION"
+          ],
+          "forbidden_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "MIXED"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED"
+          ],
+          "required_any_bull_ids": [
+            "T.BREAKOUT",
+            "P.VOLUME"
+          ],
+          "required_any_bear_ids": [
+            "R.MEMORY"
+          ],
+          "required_any_conflict_ids": [
+            "R.MEMORY"
+          ],
+          "required_missing_ids": [],
+          "required_any_invalidation_ids": [
+            "I.BREAKOUT_FAIL"
+          ],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [
+            "历史.*必然重演"
+          ],
+          "allowed_invalidation_ids": [
+            "I.BREAKOUT_FAIL"
+          ],
+          "forbidden_invalidation_ids": [
+            "I.MEMORY_DIVERGE"
+          ],
+          "empty_selection_allowed": false
+        }
+      },
+      "condition_options": {
+        "I.BREAKOUT_FAIL": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "当前突破再次失效",
+          "evidence_ids": [
+            "T.BREAKOUT"
+          ]
+        },
+        "I.MEMORY_DIVERGE": {
+          "condition_kind": "REVALIDATION",
+          "condition": "当前结构继续与历史失败路径分化",
+          "evidence_ids": [
+            "R.MEMORY",
+            "R.SIMILARITY"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "rag_absent_not_risk",
+      "market_regime": "NORMAL",
+      "evidence": {
+        "T.TREND": {
+          "fact": "趋势结构稳定延续",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.RPS": {
+          "fact": "相对强度处于强势区间",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.VOLUME": {
+          "fact": "成交活跃度保持温和",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "R.STATUS": {
+          "fact": "当前没有可用历史记忆",
+          "stance": "NEUTRAL",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.RAG": "缺少可用历史记忆"
+      },
+      "l2": {
+        "deterministic_state": "HEALTHY",
+        "candidate_interpretation": "历史记忆缺失本身构成确定性风险。",
+        "expected": {
+          "conflict_expected": false,
+          "required_any_evidence_ids": [
+            "R.STATUS",
+            "T.TREND"
+          ],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [
+            "记忆缺失.*风险",
+            "RAG.*否决"
+          ],
+          "allowed_interpretation_status": [
+            "REFUTED"
+          ],
+          "forbidden_interpretation_status": [
+            "SUPPORTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "当前量价和相对强度支持延续，历史记忆缺失只降低背景覆盖。",
+        "expected": {
+          "allowed_lifecycle": [
+            "CONTINUATION"
+          ],
+          "forbidden_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "SUPPORTED"
+          ],
+          "forbidden_thesis_states": [
+            "BROKEN"
+          ],
+          "required_any_bull_ids": [
+            "T.TREND",
+            "P.RPS",
+            "P.VOLUME"
+          ],
+          "required_any_bear_ids": [],
+          "required_any_conflict_ids": [],
+          "required_missing_ids": [],
+          "required_any_invalidation_ids": [
+            "I.TREND_BREAK",
+            "I.RPS_FADE"
+          ],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [
+            "记忆缺失.*风险",
+            "RAG.*否决"
+          ],
+          "allowed_invalidation_ids": [
+            "I.TREND_BREAK",
+            "I.RPS_FADE"
+          ],
+          "forbidden_invalidation_ids": [],
+          "empty_selection_allowed": false
+        }
+      },
+      "condition_options": {
+        "I.TREND_BREAK": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "趋势结构失效",
+          "evidence_ids": [
+            "T.TREND"
+          ]
+        },
+        "I.RPS_FADE": {
+          "condition_kind": "THESIS_INVALIDATION",
+          "condition": "相对强度转弱",
+          "evidence_ids": [
+            "P.RPS"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "sector_strong_stock_weak",
+      "market_regime": "HOT",
+      "evidence": {
+        "S.BREADTH": {
+          "fact": "所属板块广度维持强势",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "S.RANK": {
+          "fact": "所属板块排名靠前",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.RELATIVE": {
+          "fact": "个股持续跑输所属板块",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "T.TREND": {
+          "fact": "个股趋势结构已经转弱",
+          "stance": "RISK",
+          "quality": "VALID"
+        }
+      },
+      "missing_evidence": {
+        "M.CATALYST": "缺少个股独立催化"
+      },
+      "l2": {
+        "deterministic_state": "EXHAUSTED",
+        "candidate_interpretation": "板块强势与个股弱势形成明显冲突，不能把板块表现直接当成个股确认。",
+        "expected": {
+          "conflict_expected": true,
+          "required_any_evidence_ids": [
+            "S.BREADTH",
+            "S.RANK"
+          ],
+          "required_any_conflict_ids": [
+            "P.RELATIVE",
+            "T.TREND"
+          ],
+          "required_missing_ids": [],
+          "forbidden_summary_patterns": [
+            "板块.*保证",
+            "个股.*同步强势"
+          ],
+          "allowed_interpretation_status": [
+            "SUPPORTED"
+          ],
+          "forbidden_interpretation_status": [
+            "REFUTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "强势板块能够保证当前个股继续延续。",
+        "expected": {
+          "allowed_lifecycle": [
+            "EXHAUSTION"
+          ],
+          "forbidden_lifecycle": [
+            "CONTINUATION"
+          ],
+          "allowed_thesis_states": [
+            "BROKEN"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED"
+          ],
+          "required_any_bull_ids": [
+            "S.BREADTH",
+            "S.RANK"
+          ],
+          "required_any_bear_ids": [
+            "P.RELATIVE",
+            "T.TREND"
+          ],
+          "required_any_conflict_ids": [
+            "P.RELATIVE",
+            "T.TREND"
+          ],
+          "required_missing_ids": [],
+          "required_any_invalidation_ids": [],
+          "abstain_expected": false,
+          "forbidden_summary_patterns": [
+            "保证.*延续"
+          ],
+          "allowed_invalidation_ids": [],
+          "forbidden_invalidation_ids": [
+            "I.RELATIVE_RECOVER",
+            "I.TREND_REPAIR"
+          ],
+          "empty_selection_allowed": true
+        }
+      },
+      "condition_options": {
+        "I.RELATIVE_RECOVER": {
+          "condition_kind": "REVALIDATION",
+          "condition": "个股相对板块表现恢复",
+          "evidence_ids": [
+            "P.RELATIVE"
+          ]
+        },
+        "I.TREND_REPAIR": {
+          "condition_kind": "REVALIDATION",
+          "condition": "个股趋势结构修复",
+          "evidence_ids": [
+            "T.TREND"
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "weak_price_positive_institution",
+      "market_regime": "COLD",
+      "evidence": {
+        "T.TREND": {
+          "fact": "价格趋势仍然偏弱",
+          "stance": "RISK",
+          "quality": "VALID"
+        },
+        "Z.INST_FLOW": {
+          "fact": "机构方向性资金为净流入",
+          "stance": "SUPPORT",
+          "quality": "VALID"
+        },
+        "P.VOLUME": {
+          "fact": "成交活跃度数据缺失",
+          "stance": "UNKNOWN",
+          "quality": "MISSING"
+        },
+        "F.QUALITY": {
+          "fact": "财务质量证据缺失",
+          "stance": "UNKNOWN",
+          "quality": "MISSING"
+        }
+      },
+      "missing_evidence": {
+        "M.VOLUME": "需要成交活跃度",
+        "M.FINANCE": "需要财务质量"
+      },
+      "l2": {
+        "deterministic_state": "UNKNOWN",
+        "candidate_interpretation": "机构流入足以确认价格已经进入新趋势。",
+        "expected": {
+          "conflict_expected": true,
+          "required_any_evidence_ids": [
+            "Z.INST_FLOW",
+            "T.TREND"
+          ],
+          "required_any_conflict_ids": [
+            "T.TREND"
+          ],
+          "required_missing_ids": [
+            "M.VOLUME",
+            "M.FINANCE"
+          ],
+          "forbidden_summary_patterns": [
+            "确认.*新趋势",
+            "价格.*已经转强"
+          ],
+          "allowed_interpretation_status": [
+            "UNVERIFIABLE"
+          ],
+          "forbidden_interpretation_status": [
+            "SUPPORTED",
+            "REFUTED"
+          ]
+        }
+      },
+      "l3": {
+        "candidate_thesis": "机构流入已经确认新的趋势阶段。",
+        "expected": {
+          "allowed_lifecycle": [
+            "UNCLEAR"
+          ],
+          "forbidden_lifecycle": [
+            "INITIATION",
+            "CONTINUATION",
+            "EXHAUSTION"
+          ],
+          "allowed_thesis_states": [
+            "UNKNOWN"
+          ],
+          "forbidden_thesis_states": [
+            "SUPPORTED",
+            "BROKEN"
+          ],
+          "required_any_bull_ids": [
+            "Z.INST_FLOW"
+          ],
+          "required_any_bear_ids": [
+            "T.TREND"
+          ],
+          "required_any_conflict_ids": [
+            "T.TREND"
+          ],
+          "required_missing_ids": [
+            "M.VOLUME",
+            "M.FINANCE"
+          ],
+          "required_any_invalidation_ids": [],
+          "abstain_expected": true,
+          "forbidden_summary_patterns": [
+            "确认.*趋势"
+          ],
+          "allowed_invalidation_ids": [],
+          "forbidden_invalidation_ids": [
+            "I.TREND_REPAIR",
+            "I.DATA_READY"
+          ],
+          "empty_selection_allowed": true
+        }
+      },
+      "condition_options": {
+        "I.TREND_REPAIR": {
+          "condition_kind": "REVALIDATION",
+          "condition": "价格趋势完成修复",
+          "evidence_ids": [
+            "T.TREND"
+          ]
+        },
+        "I.DATA_READY": {
+          "condition_kind": "EVIDENCE_COMPLETION",
+          "condition": "成交和财务证据补齐",
+          "evidence_ids": [
+            "P.VOLUME",
+            "F.QUALITY"
+          ]
+        }
+      }
+    }
+  ]
+}

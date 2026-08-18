@@ -1,0 +1,41 @@
+cooldown:
+  max_daily_trades: 6
+  same_symbol_min_interval_days: 3
+position:
+  initial_capital: 1000000.0
+  max_positions: 4
+  max_single_pct: 0.35
+  min_single_pct: 0.10
+  trailing_stop_pct: 0.03
+sell_rules:
+  danger_loss_ratio: -0.05
+  first_take_profit_ratio: 0.08
+  second_take_profit_ratio: 0.12
+  profit_lock_floor_ratio: 0.08
+  profit_lock_trim_drawdown: 0.035
+  profit_lock_clear_drawdown: 0.05
+  profit_lock_runner_max_pct: 0.10
+  wrong_pick_stop_ratio: -0.05
+  opening_extreme_stop_ratio: -0.07
+  stop_loss_confirm_mode: intraday
+quote_health:
+  alert_after_0930_failures: 3
+  raw_snapshot_limit: 3000
+liquidation:
+  profit_take_participation: 0.10
+  protective_stop_participation: 0.30
+  panic_stop_participation: 0.50
+  small_order_full_qty: 5000
+  protective_impact_multiplier: 1.5
+  panic_impact_multiplier: 2.5
+  target_minutes: 30
+trade_costs:
+  enabled: true
+  commission_rate: 0.00025
+  commission_min: 5.0
+  stamp_tax_rate_sell: 0.0005
+  transfer_fee_rate: 0.00001
+slippage:
+  alpha: 0.1
+  beta: 0.05
+  description: Price_shadow = Price_logical * (1 +/- (alpha * sigma + beta * Qty/ADV20))

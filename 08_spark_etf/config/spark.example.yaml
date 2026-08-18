@@ -1,0 +1,49 @@
+# Example only. Copy to spark.yaml locally and fill real private holdings.
+# Do not commit real fund holdings, costs, shares, or invested amounts.
+
+portfolios:
+  - etf_code: "000000.OF"
+    name: "??????A"
+    tags: ["??", "??"]
+    asset_bucket: "core_index"
+    holding_mode: "dca_active"
+    valuation_proxy:
+      source: "tushare_index_dailybasic"
+      ts_code: "000300.SH"
+      metric: "pe_ttm"
+      lookback: 800
+    dca_policy: &default_dca
+      extreme_low_percentile: 0.20
+      low_percentile: 0.35
+      high_percentile: 0.75
+      extreme_high_percentile: 0.90
+      extreme_low_multiplier: 3.0
+      low_multiplier: 2.0
+      neutral_multiplier: 1.0
+      high_multiplier: 0.5
+      extreme_high_multiplier: 0.0
+    risk_budget: 0.08
+    max_position_amount: 10000
+    base_dca_amount: 100
+    avg_cost: 1.0000
+    current_shares: 0.00
+    total_invested: 0.00
+
+  - etf_code: "999999.OF"
+    name: "????????"
+    tags: ["??", "????"]
+    asset_bucket: "legacy_free_ride"
+    holding_mode: "sell_only"
+    valuation_proxy:
+      source: "tushare_index_dailybasic"
+      ts_code: "000300.SH"
+      metric: "pe_ttm"
+      lookback: 800
+    dca_policy: *default_dca
+    risk_budget: 0.00
+    max_position_amount: 0
+    base_dca_amount: 0
+    avg_cost: 0.0000
+    current_shares: 0.00
+    total_invested: 0.00
+    status_override: "FREE_RIDE"

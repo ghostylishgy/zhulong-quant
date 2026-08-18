@@ -1,0 +1,137 @@
+themes:
+  - theme: "港股创新药"
+    thesis: "创新药经历较长调整后，适合作为低位观察方向；候选池只观察未持仓标的。"
+    asset_bucket: "candidate_theme"
+    priority: 1
+    tags: ["创新药", "港股", "医药"]
+  - theme: "AI基建"
+    thesis: "AI 算力、机器人、半导体、云计算属于待涨/高弹性方向；先看低位、回撤修复和趋势转强。"
+    asset_bucket: "candidate_theme"
+    priority: 1
+    tags: ["人工智能", "机器人", "半导体", "云计算", "算力"]
+  - theme: "中概港股科技"
+    thesis: "中概和港股科技适合观察平台经济修复与趋势反转，但估值代理需谨慎。"
+    asset_bucket: "candidate_overseas"
+    priority: 2
+    tags: ["中概互联", "港股科技", "恒生科技"]
+
+candidates:
+  - fund_code: "021030.OF"
+    fund_name: "汇添富国证港股通创新药ETF联接A"
+    theme: "港股创新药"
+    asset_bucket: "candidate_theme"
+    priority: 1
+    tags: ["创新药", "港股", "ETF联接"]
+    source: "tushare_fund_basic_manual_select"
+    thesis: "未持仓的港股创新药联接基金，用于观察创新药低位修复，不替代已有持仓止盈线。"
+    valuation_proxy:
+      source: "manual_or_external_required"
+      ts_code: null
+      metric: "trend_only"
+      note: "港股创新药暂不伪造 PE 分位，先用净值回撤和趋势观察。"
+
+  - fund_code: "012737.OF"
+    fund_name: "广发中证创新药产业ETF联接A"
+    theme: "港股创新药"
+    asset_bucket: "candidate_theme"
+    priority: 2
+    tags: ["创新药", "A股", "ETF联接"]
+    source: "tushare_fund_basic_manual_select"
+    thesis: "未持仓的创新药产业联接基金，作为港股创新药之外的医药创新备选观察。"
+    valuation_proxy:
+      source: "manual_or_external_required"
+      ts_code: null
+      metric: "trend_only"
+      note: "创新药指数估值代理待确认，先不输出低估分位。"
+
+  - fund_code: "021090.OF"
+    fund_name: "鹏华中证云计算与大数据主题ETF联接A"
+    theme: "AI基建"
+    asset_bucket: "candidate_theme"
+    priority: 1
+    tags: ["云计算", "大数据", "算力"]
+    source: "tushare_fund_basic_manual_select"
+    thesis: "未持仓的 AI 基建基础设施方向，观察算力和云计算链条是否低位转强。"
+    valuation_proxy:
+      source: "manual_or_external_required"
+      ts_code: null
+      metric: "trend_only"
+      note: "云计算主题先按净值趋势观察。"
+
+  - fund_code: "021895.OF"
+    fund_name: "国投瑞银中证机器人指数A"
+    theme: "AI基建"
+    asset_bucket: "candidate_theme"
+    priority: 1
+    tags: ["机器人", "AI基建"]
+    source: "tushare_fund_basic_manual_select"
+    thesis: "未持仓机器人指数基金，作为现有机器人持仓之外的同主题候选观察。"
+    valuation_proxy:
+      source: "manual_or_external_required"
+      ts_code: null
+      metric: "trend_only"
+      note: "机器人主题估值代理待确认，先按净值趋势观察。"
+
+  - fund_code: "023461.OF"
+    fund_name: "中欧中证人工智能主题指数A"
+    theme: "AI基建"
+    asset_bucket: "candidate_theme"
+    priority: 2
+    tags: ["人工智能", "AI", "指数"]
+    source: "tushare_fund_basic_manual_select"
+    thesis: "未持仓人工智能指数基金，观察 AI 主题是否重新进入趋势确认。"
+    valuation_proxy:
+      source: "manual_or_external_required"
+      ts_code: null
+      metric: "trend_only"
+      note: "人工智能主题暂按净值趋势观察。"
+
+  - fund_code: "021224.OF"
+    fund_name: "华宝上证科创板芯片ETF联接A"
+    theme: "AI基建"
+    asset_bucket: "candidate_theme"
+    priority: 2
+    tags: ["芯片", "半导体", "科创板"]
+    source: "tushare_fund_basic_manual_select"
+    thesis: "未持仓芯片联接基金，作为半导体上游方向的观察标的。"
+    valuation_proxy:
+      source: "manual_or_external_required"
+      ts_code: null
+      metric: "trend_only"
+      note: "芯片主题估值代理待确认，先按净值趋势观察。"
+
+  - fund_code: "013402.OF"
+    fund_name: "华夏恒生科技ETF联接A"
+    theme: "中概港股科技"
+    asset_bucket: "candidate_overseas"
+    priority: 1
+    tags: ["恒生科技", "港股科技"]
+    source: "tushare_fund_basic_manual_select"
+    thesis: "未持仓恒生科技联接基金，观察港股科技修复和趋势反转。"
+    valuation_proxy:
+      source: "manual_or_external_required"
+      ts_code: null
+      metric: "trend_only"
+      note: "恒生科技暂不伪造估值分位。"
+
+  - fund_code: "019313.OF"
+    fund_name: "易方达中证港股通互联网ETF联接A"
+    theme: "中概港股科技"
+    asset_bucket: "candidate_overseas"
+    priority: 2
+    tags: ["港股互联网", "平台经济"]
+    source: "tushare_fund_basic_manual_select"
+    thesis: "未持仓港股通互联网联接基金，作为中概互联之外的平台经济修复观察。"
+    valuation_proxy:
+      source: "manual_or_external_required"
+      ts_code: null
+      metric: "trend_only"
+      note: "港股互联网暂不伪造估值分位。"
+
+policies:
+  min_history_points: 30
+  low_drawdown_60d: -0.18
+  deep_drawdown_60d: -0.28
+  trend_turn_return_20d: 0.04
+  rebound_return_20d: 0.03
+  low_valuation_percentile: 0.35

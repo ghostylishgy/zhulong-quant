@@ -1,0 +1,14 @@
+{
+  "watchlist": [
+    {"ticker": "NVDA", "cik": "0001045810", "name": "NVIDIA", "theme": "ai_compute"},
+    {"ticker": "AVGO", "cik": "0001730168", "name": "Broadcom", "theme": "ai_compute"},
+    {"ticker": "MU", "cik": "0000723125", "name": "Micron Technology", "theme": "memory_hbm"},
+    {"ticker": "TSM", "cik": "0001046179", "name": "Taiwan Semiconductor Manufacturing", "theme": "advanced_node"},
+    {"ticker": "ASML", "cik": "0000937966", "name": "ASML Holding", "theme": "advanced_node"},
+    {"ticker": "COHR", "cik": "0000820318", "name": "Coherent", "theme": "optical_interconnect"},
+    {"ticker": "GLW", "cik": "0000024741", "name": "Corning", "theme": "optical_interconnect"},
+    {"ticker": "VST", "cik": "0001692819", "name": "Vistra", "theme": "datacenter_power"},
+    {"ticker": "GEV", "cik": "0001996810", "name": "GE Vernova", "theme": "datacenter_power"},
+    {"ticker": "AMD", "cik": "0000002488", "name": "Advanced Micro Devices", "theme": "inference_asic"}
+  ]
+}

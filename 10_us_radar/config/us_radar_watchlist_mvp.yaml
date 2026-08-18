@@ -1,0 +1,171 @@
+# us_radar_watchlist_mvp.yaml
+# 用途: 烛龙 10_us_radar MVP 研究验证
+# 设计逻辑: 每条产业链 = 美股事件源 + A股传导标的
+# 说明: 这是研究验证配置, 不作为交易指令
+
+chains:
+  ai_compute:
+    description: AI算力 -> A股光模块/PCB/液冷
+    us_primary:
+      - ticker: NVDA
+        name: Nvidia
+        event_signals: [财报capex指引, 新品发布, 大客户订单]
+      - ticker: AVGO
+        name: Broadcom
+        event_signals: [ASIC订单, 网络芯片需求]
+    cn_transmission:
+      - ticker: 300308.SZ
+        name: 中际旭创
+        transmission_type: true_business
+        link_logic: 英伟达供应链, 光模块核心供应商
+      - ticker: 300394.SZ
+        name: 天孚通信
+        transmission_type: true_business
+        link_logic: 光器件, 英伟达间接供应
+      - ticker: 002463.SZ
+        name: 沪电股份
+        transmission_type: true_business
+        link_logic: AI服务器PCB
+      - ticker: 002230.SZ
+        name: 科大讯飞
+        transmission_type: sentiment
+        link_logic: AI应用层, 情绪传导, 非直接供应链
+
+  memory_hbm:
+    description: HBM/存储 -> A股封测/材料
+    us_primary:
+      - ticker: MU
+        name: Micron
+        event_signals: [HBM产能指引, 财报, 价格预期]
+    cn_transmission:
+      - ticker: 002156.SZ
+        name: 通富微电
+        transmission_type: true_business
+        link_logic: 先进封装, HBM相关
+      - ticker: 600584.SH
+        name: 长电科技
+        transmission_type: true_business
+        link_logic: 国内封测龙头
+      - ticker: 300782.SZ
+        name: 卓胜微
+        transmission_type: sentiment
+        link_logic: 射频+存储相关情绪
+
+  advanced_node:
+    description: 先进制程 -> A股半导体设备/材料
+    us_primary:
+      - ticker: TSM
+        name: TSMC
+        event_signals: [资本开支, 产能扩张, 良率]
+      - ticker: ASML
+        name: ASML
+        event_signals: [EUV订单, 财报指引]
+    cn_transmission:
+      - ticker: 688012.SH
+        name: 中微公司
+        transmission_type: true_business
+        link_logic: 国产刻蚀设备
+      - ticker: 688082.SH
+        name: 盛美上海
+        transmission_type: true_business
+        link_logic: 清洗设备
+      - ticker: 688981.SH
+        name: 中芯国际
+        transmission_type: sentiment
+        link_logic: 国内晶圆代工龙头, 情绪强相关
+
+  optical_interconnect:
+    description: 光学连接 -> A股光通信
+    us_primary:
+      - ticker: COHR
+        name: Coherent
+        event_signals: [财报, 大客户公告]
+      - ticker: GLW
+        name: Corning
+        event_signals: [Nvidia合作, 新厂建设]
+    cn_transmission:
+      - ticker: 300308.SZ
+        name: 中际旭创
+        transmission_type: true_business
+        link_logic: 重复出现, 链一已列
+      - ticker: 002281.SZ
+        name: 光迅科技
+        transmission_type: true_business
+        link_logic: 光器件, CPO概念
+      - ticker: 300502.SZ
+        name: 新易盛
+        transmission_type: true_business
+        link_logic: 光模块, 北美客户
+
+  datacenter_power:
+    description: 数据中心电力 -> A股电力设备/核电
+    us_primary:
+      - ticker: VST
+        name: Vistra
+        event_signals: [数据中心PPA合同, 财报]
+      - ticker: GEV
+        name: GE Vernova
+        event_signals: [燃气轮机订单]
+    cn_transmission:
+      - ticker: 601727.SH
+        name: 上海电气
+        transmission_type: true_business
+        link_logic: 电力设备, 核电
+      - ticker: 600875.SH
+        name: 东方电气
+        transmission_type: true_business
+        link_logic: 发电设备
+      - ticker: 002028.SZ
+        name: 思源电气
+        transmission_type: true_business
+        link_logic: 电力设备, 数据中心间接受益
+
+  inference_asic:
+    description: 推理芯片/ASIC -> A股AI芯片情绪
+    us_primary:
+      - ticker: AMD
+        name: AMD
+        event_signals: [MI系列订单, 财报]
+      - ticker: AVGO
+        name: Broadcom
+        event_signals: [TPU订单情绪]
+    cn_transmission:
+      - ticker: 688256.SH
+        name: 寒武纪
+        transmission_type: sentiment
+        link_logic: 国产AI芯片情绪强相关
+      - ticker: 688041.SH
+        name: 海光信息
+        transmission_type: sentiment
+        link_logic: 国产CPU/DCU
+      - ticker: 603501.SH
+        name: 韦尔股份
+        transmission_type: sentiment
+        link_logic: 半导体设计, 情绪传导
+
+event_type_mapping:
+  "8-K":
+    description: 重大事件公告
+    high_signal_types: [财报预告, 大客户合同, 高管变动, 业绩指引调整]
+    transmission_speed: 1-3个交易日
+  "Form 4":
+    description: 内部人交易
+    high_signal_types: [大额减持, 集中增持]
+    transmission_speed: 3-10个交易日
+  "10-Q/10-K":
+    description: 季报/年报
+    high_signal_types: [capex指引, 营收分项, 库存变化]
+    transmission_speed: 即日反应, 1-5日扩散
+
+mvp_validation_goals:
+  - 美股事件触发后, A股对应标的的T+1/T+3/T+5股价反应
+  - 不同类型事件的传导强度对比, 例如8-K vs Form 4
+  - 同一产业链上不同标的的传导差异, 例如直接供应商 vs 情绪相关
+  - 识别假传导, 即美股事件无实际业务关联但A股标的因情绪共振
+
+metadata:
+  total_us_tickers: 10
+  total_cn_tickers: 18
+  chains: 6
+  purpose: MVP_research_validation
+  not_for_trading: true

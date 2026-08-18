@@ -1,0 +1,113 @@
+# Secrets and local config
+.env
+*.env
+config/.env
+config/*.env
+*.key
+*.pem
+*.crt
+*.p12
+
+# Databases and downloaded data
+*.duckdb
+*.duckdb.*
+*.db
+*.sqlite
+*.sqlite3
+*.csv
+*.parquet
+*.feather
+*.pkl
+storage/database/
+storage/data/
+storage/chromadb/
+data/
+!08_spark_etf/src/spark_etf/data/
+!08_spark_etf/src/spark_etf/data/**
+08_spark_etf/data/
+
+# Spark ETF local/private holdings and candidate configs
+08_spark_etf/config/spark.yaml
+08_spark_etf/config/candidates.yaml
+08_spark_etf/config/*.private.yaml
+08_spark_etf/config/*.local.yaml
+!08_spark_etf/config/*.example.yaml
+
+# Logs and runtime state
+logs/
+storage/logs/
+storage/states/
+storage/locks/
+storage/audit_results/*.json
+storage/reports/
+storage/signals/
+*.log
+*.pid
+*.lock
+nohup.out
+src/layers/l5_evolution/evolver_state.json
+
+# Python/runtime environments
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+venv/
+.venv/
+venv-rag/
+
+# Frontend dependencies/build output
+node_modules/
+dist/
+build/
+.vite/
+
+# Archives, backups, and temp artifacts
+archive/
+backup/
+_archive_backups/
+_archive_tests/
+*.bak
+*.bak_*
+*.bak-*
+*.backup*
+*.old
+*.orig
+*.tmp
+*.swp
+*.swo
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+
+# Local IDE noise
+.vscode/
+.idea/
+.DS_Store
+
+# Keep placeholder directories when deliberately created
+!storage/.gitkeep
+!storage/database/.gitkeep
+!storage/data/.gitkeep
+!storage/logs/.gitkeep
+
+# Local backup secrets and encrypted repositories
+.secrets/
+storage/cloud_restic_repo/
+storage/cloud_backup/
+
+# Public-release safety
+*.bundle
+*.patch
+*.diff
+.codex/
+.claude/
+storage/private/
+private/
+secrets/

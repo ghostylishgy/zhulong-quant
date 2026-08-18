@@ -1,0 +1,775 @@
+{
+  "suite_version": "L2_L3_ATOMIC_RELATION_V0_3",
+  "description": "Balanced atomic claim-condition pairs for offline L3 relation testing.",
+  "contract_version": "L2_L3_EVIDENCE_CONTRACT_V0_3",
+  "cases": [
+    {
+      "case_id": "atomic_01",
+      "claim": {
+        "claim_id": "C.CASE_01",
+        "claim_text": "趋势结构保持多头排列",
+        "dimension": "TREND",
+        "variable": "TREND_STATE",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_01",
+        "hypothesis": "若趋势结构继续保持多头排列",
+        "dimension": "TREND",
+        "variable": "TREND_STATE",
+        "evidence_ids": [
+          "E1"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E1",
+          "dimension": "TREND",
+          "normalized_fact": "趋势结构继续保持多头排列",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "SUPPORTS"
+    },
+    {
+      "case_id": "atomic_02",
+      "claim": {
+        "claim_id": "C.CASE_02",
+        "claim_text": "机构资金持续净流入",
+        "dimension": "FLOW",
+        "variable": "INST_FLOW",
+        "claim_role": "RISK",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_02",
+        "hypothesis": "若机构资金继续保持净流入",
+        "dimension": "FLOW",
+        "variable": "INST_FLOW",
+        "evidence_ids": [
+          "E2"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E2",
+          "dimension": "FLOW",
+          "normalized_fact": "机构资金继续保持净流入",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "SUPPORTS"
+    },
+    {
+      "case_id": "atomic_03",
+      "claim": {
+        "claim_id": "C.CASE_03",
+        "claim_text": "成交活跃度温和提高",
+        "dimension": "VOLUME",
+        "variable": "VOLUME_ACTIVITY",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_03",
+        "hypothesis": "若成交活跃度继续温和提高",
+        "dimension": "VOLUME",
+        "variable": "VOLUME_ACTIVITY",
+        "evidence_ids": [
+          "E3"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E3",
+          "dimension": "VOLUME",
+          "normalized_fact": "成交活跃度继续温和提高",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "SUPPORTS"
+    },
+    {
+      "case_id": "atomic_04",
+      "claim": {
+        "claim_id": "C.CASE_04",
+        "claim_text": "相对强度维持强势",
+        "dimension": "RPS",
+        "variable": "RPS10",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_04",
+        "hypothesis": "若相对强度继续维持强势",
+        "dimension": "RPS",
+        "variable": "RPS10",
+        "evidence_ids": [
+          "E4"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E4",
+          "dimension": "RPS",
+          "normalized_fact": "相对强度继续维持强势",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "SUPPORTS"
+    },
+    {
+      "case_id": "atomic_05",
+      "claim": {
+        "claim_id": "C.CASE_05",
+        "claim_text": "融资方向保持增强",
+        "dimension": "FLOW",
+        "variable": "MARGIN_FLOW",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_05",
+        "hypothesis": "若融资方向继续保持增强",
+        "dimension": "FLOW",
+        "variable": "MARGIN_FLOW",
+        "evidence_ids": [
+          "E5"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E5",
+          "dimension": "FLOW",
+          "normalized_fact": "融资方向继续保持增强",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "SUPPORTS"
+    },
+    {
+      "case_id": "atomic_06",
+      "claim": {
+        "claim_id": "C.CASE_06",
+        "claim_text": "突破结构保持有效",
+        "dimension": "PATTERN",
+        "variable": "BREAKOUT",
+        "claim_role": "SUPPORTING",
+        "claim_state": "INVALIDATED",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_06",
+        "hypothesis": "若突破结构继续保持有效",
+        "dimension": "PATTERN",
+        "variable": "BREAKOUT",
+        "evidence_ids": [
+          "E6"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E6",
+          "dimension": "PATTERN",
+          "normalized_fact": "突破结构继续保持有效",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "SUPPORTS"
+    },
+    {
+      "case_id": "atomic_07",
+      "claim": {
+        "claim_id": "C.CASE_07",
+        "claim_text": "成交流动性保持充足",
+        "dimension": "LIQUIDITY",
+        "variable": "LIQUIDITY",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_07",
+        "hypothesis": "若成交流动性继续保持充足",
+        "dimension": "LIQUIDITY",
+        "variable": "LIQUIDITY",
+        "evidence_ids": [
+          "E7"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E7",
+          "dimension": "LIQUIDITY",
+          "normalized_fact": "成交流动性继续保持充足",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "SUPPORTS"
+    },
+    {
+      "case_id": "atomic_08",
+      "claim": {
+        "claim_id": "C.CASE_08",
+        "claim_text": "公司订单兑现信息保持明确",
+        "dimension": "NEWS",
+        "variable": "ORDER_EVENT",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_08",
+        "hypothesis": "若公司订单兑现信息继续保持明确",
+        "dimension": "NEWS",
+        "variable": "ORDER_EVENT",
+        "evidence_ids": [
+          "E8"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E8",
+          "dimension": "NEWS",
+          "normalized_fact": "公司订单兑现信息继续保持明确",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "SUPPORTS"
+    },
+    {
+      "case_id": "atomic_09",
+      "claim": {
+        "claim_id": "C.CASE_09",
+        "claim_text": "趋势结构保持多头排列",
+        "dimension": "TREND",
+        "variable": "TREND_STATE",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_09",
+        "hypothesis": "若趋势结构转为弱势",
+        "dimension": "TREND",
+        "variable": "TREND_STATE",
+        "evidence_ids": [
+          "E9"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E9",
+          "dimension": "TREND",
+          "normalized_fact": "趋势结构转为弱势",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "CONTRADICTS"
+    },
+    {
+      "case_id": "atomic_10",
+      "claim": {
+        "claim_id": "C.CASE_10",
+        "claim_text": "机构资金持续净流出",
+        "dimension": "FLOW",
+        "variable": "INST_FLOW",
+        "claim_role": "RISK",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_10",
+        "hypothesis": "若机构资金转为净流入",
+        "dimension": "FLOW",
+        "variable": "INST_FLOW",
+        "evidence_ids": [
+          "E10"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E10",
+          "dimension": "FLOW",
+          "normalized_fact": "机构资金转为净流入",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "CONTRADICTS"
+    },
+    {
+      "case_id": "atomic_11",
+      "claim": {
+        "claim_id": "C.CASE_11",
+        "claim_text": "成交活跃度温和提高",
+        "dimension": "VOLUME",
+        "variable": "VOLUME_ACTIVITY",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_11",
+        "hypothesis": "若成交活跃度转为衰减",
+        "dimension": "VOLUME",
+        "variable": "VOLUME_ACTIVITY",
+        "evidence_ids": [
+          "E11"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E11",
+          "dimension": "VOLUME",
+          "normalized_fact": "成交活跃度转为衰减",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "CONTRADICTS"
+    },
+    {
+      "case_id": "atomic_12",
+      "claim": {
+        "claim_id": "C.CASE_12",
+        "claim_text": "相对强度维持强势",
+        "dimension": "RPS",
+        "variable": "RPS10",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_12",
+        "hypothesis": "若相对强度跌入弱势区间",
+        "dimension": "RPS",
+        "variable": "RPS10",
+        "evidence_ids": [
+          "E12"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E12",
+          "dimension": "RPS",
+          "normalized_fact": "相对强度跌入弱势区间",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "CONTRADICTS"
+    },
+    {
+      "case_id": "atomic_13",
+      "claim": {
+        "claim_id": "C.CASE_13",
+        "claim_text": "融资方向保持增强",
+        "dimension": "FLOW",
+        "variable": "MARGIN_FLOW",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_13",
+        "hypothesis": "若融资方向转为减弱",
+        "dimension": "FLOW",
+        "variable": "MARGIN_FLOW",
+        "evidence_ids": [
+          "E13"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E13",
+          "dimension": "FLOW",
+          "normalized_fact": "融资方向转为减弱",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "CONTRADICTS"
+    },
+    {
+      "case_id": "atomic_14",
+      "claim": {
+        "claim_id": "C.CASE_14",
+        "claim_text": "突破结构保持有效",
+        "dimension": "PATTERN",
+        "variable": "BREAKOUT",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_14",
+        "hypothesis": "若突破结构失去有效性",
+        "dimension": "PATTERN",
+        "variable": "BREAKOUT",
+        "evidence_ids": [
+          "E14"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E14",
+          "dimension": "PATTERN",
+          "normalized_fact": "突破结构失去有效性",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "CONTRADICTS"
+    },
+    {
+      "case_id": "atomic_15",
+      "claim": {
+        "claim_id": "C.CASE_15",
+        "claim_text": "成交流动性保持充足",
+        "dimension": "LIQUIDITY",
+        "variable": "LIQUIDITY",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_15",
+        "hypothesis": "若成交流动性出现连续断档",
+        "dimension": "LIQUIDITY",
+        "variable": "LIQUIDITY",
+        "evidence_ids": [
+          "E15"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E15",
+          "dimension": "LIQUIDITY",
+          "normalized_fact": "成交流动性出现连续断档",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "CONTRADICTS"
+    },
+    {
+      "case_id": "atomic_16",
+      "claim": {
+        "claim_id": "C.CASE_16",
+        "claim_text": "公司订单兑现信息保持明确",
+        "dimension": "NEWS",
+        "variable": "ORDER_EVENT",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_16",
+        "hypothesis": "若公司订单兑现信息出现反证",
+        "dimension": "NEWS",
+        "variable": "ORDER_EVENT",
+        "evidence_ids": [
+          "E16"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E16",
+          "dimension": "NEWS",
+          "normalized_fact": "公司订单兑现信息出现反证",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "CONTRADICTS"
+    },
+    {
+      "case_id": "atomic_17",
+      "claim": {
+        "claim_id": "C.CASE_17",
+        "claim_text": "机构资金持续净流出",
+        "dimension": "FLOW",
+        "variable": "INST_FLOW",
+        "claim_role": "RISK",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_17",
+        "hypothesis": "若机构资金的单日笔数上升",
+        "dimension": "FLOW",
+        "variable": "INST_FLOW",
+        "evidence_ids": [
+          "E17"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E17",
+          "dimension": "FLOW",
+          "normalized_fact": "机构资金的单日笔数上升",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "UNRELATED"
+    },
+    {
+      "case_id": "atomic_18",
+      "claim": {
+        "claim_id": "C.CASE_18",
+        "claim_text": "趋势结构保持多头排列",
+        "dimension": "TREND",
+        "variable": "TREND_STATE",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_18",
+        "hypothesis": "若趋势结构的观察名称保持不变",
+        "dimension": "TREND",
+        "variable": "TREND_STATE",
+        "evidence_ids": [
+          "E18"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E18",
+          "dimension": "TREND",
+          "normalized_fact": "趋势结构的观察名称保持不变",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "UNRELATED"
+    },
+    {
+      "case_id": "atomic_19",
+      "claim": {
+        "claim_id": "C.CASE_19",
+        "claim_text": "成交活跃度温和提高",
+        "dimension": "VOLUME",
+        "variable": "VOLUME_ACTIVITY",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_19",
+        "hypothesis": "若成交活跃度的记录格式保持一致",
+        "dimension": "VOLUME",
+        "variable": "VOLUME_ACTIVITY",
+        "evidence_ids": [
+          "E19"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E19",
+          "dimension": "VOLUME",
+          "normalized_fact": "成交活跃度的记录格式保持一致",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "UNRELATED"
+    },
+    {
+      "case_id": "atomic_20",
+      "claim": {
+        "claim_id": "C.CASE_20",
+        "claim_text": "相对强度维持强势",
+        "dimension": "RPS",
+        "variable": "RPS10",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_20",
+        "hypothesis": "若相对强度的报告格式保持一致",
+        "dimension": "RPS",
+        "variable": "RPS10",
+        "evidence_ids": [
+          "E20"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E20",
+          "dimension": "RPS",
+          "normalized_fact": "相对强度的报告格式保持一致",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "UNRELATED"
+    },
+    {
+      "case_id": "atomic_21",
+      "claim": {
+        "claim_id": "C.CASE_21",
+        "claim_text": "突破结构保持有效",
+        "dimension": "PATTERN",
+        "variable": "BREAKOUT",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_21",
+        "hypothesis": "若突破结构的标签名称保持一致",
+        "dimension": "PATTERN",
+        "variable": "BREAKOUT",
+        "evidence_ids": [
+          "E21"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E21",
+          "dimension": "PATTERN",
+          "normalized_fact": "突破结构的标签名称保持一致",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "UNRELATED"
+    },
+    {
+      "case_id": "atomic_22",
+      "claim": {
+        "claim_id": "C.CASE_22",
+        "claim_text": "成交流动性保持充足",
+        "dimension": "LIQUIDITY",
+        "variable": "LIQUIDITY",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_22",
+        "hypothesis": "若成交流动性的字段顺序保持一致",
+        "dimension": "LIQUIDITY",
+        "variable": "LIQUIDITY",
+        "evidence_ids": [
+          "E22"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E22",
+          "dimension": "LIQUIDITY",
+          "normalized_fact": "成交流动性的字段顺序保持一致",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "UNRELATED"
+    },
+    {
+      "case_id": "atomic_23",
+      "claim": {
+        "claim_id": "C.CASE_23",
+        "claim_text": "公司订单兑现信息保持明确",
+        "dimension": "NEWS",
+        "variable": "ORDER_EVENT",
+        "claim_role": "SUPPORTING",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_23",
+        "hypothesis": "若公司订单兑现信息的标题格式保持一致",
+        "dimension": "NEWS",
+        "variable": "ORDER_EVENT",
+        "evidence_ids": [
+          "E23"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E23",
+          "dimension": "NEWS",
+          "normalized_fact": "公司订单兑现信息的标题格式保持一致",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "UNRELATED"
+    },
+    {
+      "case_id": "atomic_24",
+      "claim": {
+        "claim_id": "C.CASE_24",
+        "claim_text": "融资方向保持增强",
+        "dimension": "FLOW",
+        "variable": "MARGIN_FLOW",
+        "claim_role": "RISK",
+        "claim_state": "ACTIVE",
+        "as_of": "2026-08-03"
+      },
+      "condition": {
+        "condition_id": "K.CASE_24",
+        "hypothesis": "若融资方向的字段名称保持一致",
+        "dimension": "FLOW",
+        "variable": "MARGIN_FLOW",
+        "evidence_ids": [
+          "E24"
+        ],
+        "as_of": "2026-08-03"
+      },
+      "evidence_cards": [
+        {
+          "evidence_id": "E24",
+          "dimension": "FLOW",
+          "normalized_fact": "融资方向的字段名称保持一致",
+          "quality": "VALID",
+          "as_of": "2026-08-03"
+        }
+      ],
+      "expected_relation": "UNRELATED"
+    }
+  ]
+}

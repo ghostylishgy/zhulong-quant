@@ -1,0 +1,161 @@
+{
+    "_version": "SSD_v1.1",
+    "_description": "Standard Semantic Dictionary v1.1 — WeightEngine 数学底座升级",
+    "core_tags": {
+        "BREAKOUT_TRAP": {
+            "label": "#BREAKOUT_TRAP",
+            "description": "假突破陷阱：价格突破关键均线/前高后迅速回落",
+            "severity": "HIGH",
+            "category": "pattern_failure",
+            "base_penalty": 0.15
+        },
+        "VOLUME_FRAUD": {
+            "label": "#VOLUME_FRAUD",
+            "description": "量能欺诈：放量但非真实买盘(对倒/大宗交易)",
+            "severity": "CRITICAL",
+            "category": "data_integrity",
+            "base_penalty": 0.25
+        },
+        "TIDE_REJECTION": {
+            "label": "#TIDE_REJECTION",
+            "description": "潮汐否决：宏观环境(T_risk)处于FORCE_NO_EDGE时的入场尝试",
+            "severity": "HIGH",
+            "category": "macro_timing",
+            "base_penalty": 0.20
+        },
+        "MOMENTUM_EXHAUSTION": {
+            "label": "#MOMENTUM_EXHAUSTION",
+            "description": "动量衰竭：RPS持续下滑/乖离率过大/上涨缺乏后续量能",
+            "severity": "MEDIUM",
+            "category": "momentum_failure",
+            "base_penalty": 0.10
+        },
+        "OVERBOUGHT_REJECT": {
+            "label": "#OVERBOUGHT_REJECT",
+            "description": "技术性过热拒绝：短期涨幅过大/RSI超买/偏离度超限",
+            "severity": "MEDIUM",
+            "category": "echo_eligible",
+            "base_penalty": 0.08
+        },
+        "HIGH_FRICTION_REJECT": {
+            "label": "#HIGH_FRICTION_REJECT",
+            "description": "高摩擦拒绝：换手率异常/流动性不足/买卖价差过大",
+            "severity": "LOW",
+            "category": "echo_eligible",
+            "base_penalty": 0.05
+        },
+        "SECTOR_MELTDOWN": {
+            "label": "#SECTOR_MELTDOWN",
+            "description": "板块崩塌：所属行业整体跌幅>3%的联动风险",
+            "severity": "HIGH",
+            "category": "sector_risk",
+            "base_penalty": 0.18
+        },
+        "DIV_TRAP": {
+            "label": "#DIV_TRAP",
+            "description": "筹码背离陷阱：Zeta分析发现庄家出货迹象",
+            "severity": "CRITICAL",
+            "category": "chip_analysis",
+            "base_penalty": 0.25
+        },
+        "LIQUIDITY_TRAP": {
+            "label": "#LIQUIDITY_TRAP",
+            "description": "流动性陷阱：日均成交额不足/大单撤单率高/冲击成本过大",
+            "severity": "HIGH",
+            "category": "liquidity_risk",
+            "base_penalty": 0.18
+        },
+        "TIDE_DRAG": {
+            "label": "#TIDE_DRAG",
+            "description": "潮汐拖拽：CAUTION水位下的逆势操作/弱势补仓",
+            "severity": "MEDIUM",
+            "category": "macro_timing",
+            "base_penalty": 0.12
+        },
+        "CYCLE_MISMATCH": {
+            "label": "#CYCLE_MISMATCH",
+            "description": "周期错位：个股所处产业周期与大盘节奏背离",
+            "severity": "MEDIUM",
+            "category": "sector_risk",
+            "base_penalty": 0.10
+        },
+        "GOVERNANCE_RISK": {
+            "label": "#GOVERNANCE_RISK",
+            "description": "治理风险：实控人质押/高管减持/审计保留意见/关联交易",
+            "severity": "CRITICAL",
+            "category": "fundamental_risk",
+            "base_penalty": 0.30
+        }
+    },
+    "categories": {
+        "pattern_failure": "图形失败 — 技术形态无法兑现",
+        "data_integrity": "数据可信度问题",
+        "macro_timing": "宏观择时风控",
+        "momentum_failure": "动量/趋势失效",
+        "echo_eligible": "回声系统可孵化类",
+        "sector_risk": "板块系统性风险",
+        "chip_analysis": "筹码博弈分析",
+        "liquidity_risk": "流动性风险",
+        "fundamental_risk": "基本面治理风险"
+    },
+    "severity_scale": {
+        "CRITICAL": {
+            "weight": 1.0,
+            "action": "immediate_veto",
+            "lambda_floor": 0.5
+        },
+        "HIGH": {
+            "weight": 0.7,
+            "action": "strong_caution",
+            "lambda_floor": 0.7
+        },
+        "MEDIUM": {
+            "weight": 0.4,
+            "action": "note_and_monitor",
+            "lambda_floor": 0.85
+        },
+        "LOW": {
+            "weight": 0.2,
+            "action": "informational",
+            "lambda_floor": 0.95
+        }
+    },
+    "blacklist_combinations": [
+        {
+            "tags": [
+                "#LIQUIDITY_TRAP",
+                "#TIDE_DRAG"
+            ],
+            "action": "MELTDOWN",
+            "description": "流动性陷阱+潮汐拖拽=资金绞杀"
+        },
+        {
+            "tags": [
+                "#VOLUME_FRAUD",
+                "#DIV_TRAP"
+            ],
+            "action": "MELTDOWN",
+            "description": "量能造假+筹码出货=主力出逃"
+        },
+        {
+            "tags": [
+                "#GOVERNANCE_RISK",
+                "#BREAKOUT_TRAP"
+            ],
+            "action": "MELTDOWN",
+            "description": "治理瑕疵+假突破=庄股陷阱"
+        }
+    ],
+    "drift_thresholds": {
+        "consecutive_failures_before_alert": 3,
+        "alert_message": "COGNITIVE_DRIFT: Tag {tag} 连续失败 {count} 次，系统可能存在认知偏差"
+    },
+    "prompt_rules": {
+        "mandatory_tagging": true,
+        "max_tags_per_entry": 3,
+        "require_severity": true,
+        "facts_before_narrative": true,
+        "tide_context_required": true,
+        "ssd_version": "1.1"
+    }
+}

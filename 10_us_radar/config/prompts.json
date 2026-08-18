@@ -1,0 +1,10 @@
+{
+  "prompts": [
+    {
+      "prompt_version": "us_event_evidence_v0.1",
+      "purpose": "dry_run_event_evidence_extraction",
+      "model_name": "dry-run-evidence-v0",
+      "prompt_text": "Extract structured investment evidence from a US market event. Output JSON with primary_tickers, secondary_tickers, signal_direction, signal_strength, confidence, thesis, key_evidence, risk_flags, time_horizon, and action_suggestion. LLM output is advisory only and must not create orders."
+    }
+  ]
+}

@@ -1,0 +1,184 @@
+{
+  "suite_version": "L2_OBSERVER_BAKEOFF_V1",
+  "description": "Synthetic point-in-time cases for model selection under L2_OBSERVER_V5.",
+  "cases": [
+    {
+      "case_id": "healthy_continuation",
+      "candidate": {
+        "symbol": "CASE001.SZ",
+        "trade_date": "2026-07-31",
+        "close": 18.6,
+        "pct_chg": 3.2,
+        "amount": 1800000000,
+        "turnover": 3.4,
+        "vol_ratio": 1.35,
+        "rps_10": 91,
+        "pattern_score": 88,
+        "ma_alignment": true,
+        "pattern_name": "均线多头+趋势延续",
+        "zeta_inst_buy": 1,
+        "zeta_margin_delta": 25000000
+      },
+      "expected": {
+        "allowed_states": ["HEALTHY", "MIXED"],
+        "required_any_support": ["T.PATTERN_SCORE", "T.MA_ALIGNMENT", "P.RPS10"]
+      }
+    },
+    {
+      "case_id": "exhausted_spike",
+      "candidate": {
+        "symbol": "CASE002.SZ",
+        "trade_date": "2026-07-31",
+        "close": 26.8,
+        "pct_chg": 9.8,
+        "amount": 4200000000,
+        "turnover": 24,
+        "vol_ratio": 4.6,
+        "rps_10": 97,
+        "pattern_score": 44,
+        "ma_alignment": false,
+        "pattern_name": "高位放量异动",
+        "zeta_hot_money": 1
+      },
+      "expected": {
+        "allowed_states": ["EXHAUSTED", "MIXED"],
+        "required_any_risk": ["P.TURNOVER", "P.VOL_RATIO", "T.MA_ALIGNMENT", "T.PATTERN_SCORE"]
+      }
+    },
+    {
+      "case_id": "price_flow_conflict",
+      "candidate": {
+        "symbol": "CASE003.SH",
+        "trade_date": "2026-07-31",
+        "close": 33.2,
+        "pct_chg": 5.6,
+        "amount": 2600000000,
+        "turnover": 8.2,
+        "vol_ratio": 1.8,
+        "rps_10": 87,
+        "pattern_score": 81,
+        "ma_alignment": true,
+        "pattern_name": "趋势延续",
+        "zeta_lhb_net": -90000000,
+        "zeta_inst_buy": -1,
+        "zeta_margin_delta": -45000000
+      },
+      "expected": {
+        "allowed_states": ["MIXED"],
+        "required_any_support": ["T.PATTERN_SCORE", "T.MA_ALIGNMENT", "P.RPS10"],
+        "required_any_risk": ["Z.LHB_NET", "Z.INST_FLOW", "Z.MARGIN_DELTA"]
+      }
+    },
+    {
+      "case_id": "sparse_unknown",
+      "candidate": {
+        "symbol": "CASE004.SZ",
+        "trade_date": "2026-07-31",
+        "close": 10.1,
+        "pct_chg": 0.2,
+        "amount": 200000000,
+        "turnover": 1.1,
+        "vol_ratio": 0.9,
+        "rps_10": 0,
+        "pattern_score": 0,
+        "ma_alignment": false,
+        "pattern_name": "UNKNOWN"
+      },
+      "expected": {
+        "allowed_states": ["UNKNOWN"],
+        "min_missing": 1
+      }
+    },
+    {
+      "case_id": "healthy_with_flow",
+      "candidate": {
+        "symbol": "CASE005.SH",
+        "trade_date": "2026-07-31",
+        "close": 41.5,
+        "pct_chg": 3,
+        "amount": 3100000000,
+        "turnover": 4,
+        "vol_ratio": 1.4,
+        "rps_10": 89,
+        "pattern_score": 85,
+        "ma_alignment": true,
+        "pattern_name": "均线多头+温和放量",
+        "zeta_lhb_net": 80000000,
+        "zeta_inst_buy": 1,
+        "zeta_margin_delta": 30000000
+      },
+      "expected": {
+        "allowed_states": ["HEALTHY", "MIXED"],
+        "required_any_support": ["T.PATTERN_SCORE", "T.MA_ALIGNMENT", "Z.LHB_NET", "Z.INST_FLOW"]
+      }
+    },
+    {
+      "case_id": "hot_money_pulse",
+      "candidate": {
+        "symbol": "CASE006.SZ",
+        "trade_date": "2026-07-31",
+        "close": 15.9,
+        "pct_chg": 7.5,
+        "amount": 3600000000,
+        "turnover": 18,
+        "vol_ratio": 3.2,
+        "rps_10": 94,
+        "pattern_score": 56,
+        "ma_alignment": false,
+        "pattern_name": "单日游资脉冲",
+        "zeta_lhb_net": 30000000,
+        "zeta_hot_money": 1
+      },
+      "expected": {
+        "allowed_states": ["MIXED", "EXHAUSTED"],
+        "required_any_risk": ["P.TURNOVER", "P.VOL_RATIO", "T.MA_ALIGNMENT", "Z.HOT_MONEY"]
+      }
+    },
+    {
+      "case_id": "weak_rps_vs_pattern",
+      "candidate": {
+        "symbol": "CASE007.SH",
+        "trade_date": "2026-07-31",
+        "close": 12.4,
+        "pct_chg": 1.5,
+        "amount": 900000000,
+        "turnover": 2.8,
+        "vol_ratio": 1.1,
+        "rps_10": 32,
+        "pattern_score": 78,
+        "ma_alignment": true,
+        "pattern_name": "均线结构尚可"
+      },
+      "expected": {
+        "allowed_states": ["MIXED"],
+        "required_any_support": ["T.PATTERN_SCORE", "T.MA_ALIGNMENT"],
+        "required_any_risk": ["P.RPS10"]
+      }
+    },
+    {
+      "case_id": "zero_zeta_not_negative_proof",
+      "candidate": {
+        "symbol": "CASE008.SZ",
+        "trade_date": "2026-07-31",
+        "close": 22.7,
+        "pct_chg": 4,
+        "amount": 1400000000,
+        "turnover": 5,
+        "vol_ratio": 1.5,
+        "rps_10": 82,
+        "pattern_score": 74,
+        "ma_alignment": true,
+        "pattern_name": "趋势结构",
+        "zeta_lhb_net": 0,
+        "zeta_inst_buy": 0,
+        "zeta_hot_money": 0,
+        "zeta_margin_delta": 0
+      },
+      "expected": {
+        "allowed_states": ["HEALTHY", "MIXED"],
+        "required_any_support": ["T.PATTERN_SCORE", "T.MA_ALIGNMENT", "P.RPS10"],
+        "forbidden_summary_patterns": ["无机构", "没有机构", "无资金流", "资金未流入"]
+      }
+    }
+  ]
+}

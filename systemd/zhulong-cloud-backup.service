@@ -1,0 +1,12 @@
+[Unit]
+Description=Zhulong encrypted cloud backup
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/quant_project
+ExecStart=/usr/bin/python3 /root/quant_project/tools/cloud_backup.py
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7

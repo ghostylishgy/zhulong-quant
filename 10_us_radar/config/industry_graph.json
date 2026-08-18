@@ -1,0 +1,89 @@
+{
+  "themes": [
+    {
+      "name": "ai_compute",
+      "description": "AI算力 -> A股光模块/PCB/液冷",
+      "event_signals": ["财报capex指引", "新品发布", "大客户订单", "ASIC订单", "网络芯片需求"],
+      "targets": [
+        {"market": "US", "ticker": "NVDA", "name": "NVIDIA", "role": "primary", "transmission_type": "source", "event_signals": ["财报capex指引", "新品发布", "大客户订单"], "link_logic": "AI算力源事件"},
+        {"market": "US", "ticker": "AVGO", "name": "Broadcom", "role": "primary", "transmission_type": "source", "event_signals": ["ASIC订单", "网络芯片需求"], "link_logic": "AI算力源事件"},
+        {"market": "CN", "ticker": "300308.SZ", "name": "中际旭创", "role": "transmission", "transmission_type": "true_business", "link_logic": "英伟达供应链, 光模块核心供应商"},
+        {"market": "CN", "ticker": "300394.SZ", "name": "天孚通信", "role": "transmission", "transmission_type": "true_business", "link_logic": "光器件, 英伟达间接供应"},
+        {"market": "CN", "ticker": "002463.SZ", "name": "沪电股份", "role": "transmission", "transmission_type": "true_business", "link_logic": "AI服务器PCB"},
+        {"market": "CN", "ticker": "002230.SZ", "name": "科大讯飞", "role": "transmission", "transmission_type": "sentiment", "link_logic": "AI应用层, 情绪传导, 非直接供应链"}
+      ]
+    },
+    {
+      "name": "memory_hbm",
+      "description": "HBM/存储 -> A股封测/材料",
+      "event_signals": ["HBM产能指引", "财报", "价格预期"],
+      "targets": [
+        {"market": "US", "ticker": "MU", "name": "Micron", "role": "primary", "transmission_type": "source", "event_signals": ["HBM产能指引", "财报", "价格预期"], "link_logic": "HBM/存储源事件"},
+        {"market": "CN", "ticker": "002156.SZ", "name": "通富微电", "role": "transmission", "transmission_type": "true_business", "link_logic": "先进封装, HBM相关"},
+        {"market": "CN", "ticker": "600584.SH", "name": "长电科技", "role": "transmission", "transmission_type": "true_business", "link_logic": "国内封测龙头"},
+        {"market": "CN", "ticker": "300782.SZ", "name": "卓胜微", "role": "transmission", "transmission_type": "sentiment", "link_logic": "射频+存储相关情绪"}
+      ]
+    },
+    {
+      "name": "advanced_node",
+      "description": "先进制程 -> A股半导体设备/材料",
+      "event_signals": ["资本开支", "产能扩张", "良率", "EUV订单", "财报指引"],
+      "targets": [
+        {"market": "US", "ticker": "TSM", "name": "TSMC", "role": "primary", "transmission_type": "source", "event_signals": ["资本开支", "产能扩张", "良率"], "link_logic": "先进制程源事件"},
+        {"market": "US", "ticker": "ASML", "name": "ASML", "role": "primary", "transmission_type": "source", "event_signals": ["EUV订单", "财报指引"], "link_logic": "先进制程源事件"},
+        {"market": "CN", "ticker": "688012.SH", "name": "中微公司", "role": "transmission", "transmission_type": "true_business", "link_logic": "国产刻蚀设备"},
+        {"market": "CN", "ticker": "688082.SH", "name": "盛美上海", "role": "transmission", "transmission_type": "true_business", "link_logic": "清洗设备"},
+        {"market": "CN", "ticker": "688981.SH", "name": "中芯国际", "role": "transmission", "transmission_type": "sentiment", "link_logic": "国内晶圆代工龙头, 情绪强相关"}
+      ]
+    },
+    {
+      "name": "optical_interconnect",
+      "description": "光学连接 -> A股光通信",
+      "event_signals": ["财报", "大客户公告", "Nvidia合作", "新厂建设"],
+      "targets": [
+        {"market": "US", "ticker": "COHR", "name": "Coherent", "role": "primary", "transmission_type": "source", "event_signals": ["财报", "大客户公告"], "link_logic": "光学连接源事件"},
+        {"market": "US", "ticker": "GLW", "name": "Corning", "role": "primary", "transmission_type": "source", "event_signals": ["Nvidia合作", "新厂建设"], "link_logic": "光学连接源事件"},
+        {"market": "CN", "ticker": "300308.SZ", "name": "中际旭创", "role": "transmission", "transmission_type": "true_business", "link_logic": "重复出现, 链一已列"},
+        {"market": "CN", "ticker": "002281.SZ", "name": "光迅科技", "role": "transmission", "transmission_type": "true_business", "link_logic": "光器件, CPO概念"},
+        {"market": "CN", "ticker": "300502.SZ", "name": "新易盛", "role": "transmission", "transmission_type": "true_business", "link_logic": "光模块, 北美客户"}
+      ]
+    },
+    {
+      "name": "datacenter_power",
+      "description": "数据中心电力 -> A股电力设备/核电",
+      "event_signals": ["数据中心PPA合同", "财报", "燃气轮机订单"],
+      "targets": [
+        {"market": "US", "ticker": "VST", "name": "Vistra", "role": "primary", "transmission_type": "source", "event_signals": ["数据中心PPA合同", "财报"], "link_logic": "数据中心电力源事件"},
+        {"market": "US", "ticker": "GEV", "name": "GE Vernova", "role": "primary", "transmission_type": "source", "event_signals": ["燃气轮机订单"], "link_logic": "数据中心电力源事件"},
+        {"market": "CN", "ticker": "601727.SH", "name": "上海电气", "role": "transmission", "transmission_type": "true_business", "link_logic": "电力设备, 核电"},
+        {"market": "CN", "ticker": "600875.SH", "name": "东方电气", "role": "transmission", "transmission_type": "true_business", "link_logic": "发电设备"},
+        {"market": "CN", "ticker": "002028.SZ", "name": "思源电气", "role": "transmission", "transmission_type": "true_business", "link_logic": "电力设备, 数据中心间接受益"}
+      ]
+    },
+    {
+      "name": "inference_asic",
+      "description": "推理芯片/ASIC -> A股AI芯片情绪",
+      "event_signals": ["MI系列订单", "财报", "TPU订单情绪"],
+      "targets": [
+        {"market": "US", "ticker": "AMD", "name": "AMD", "role": "primary", "transmission_type": "source", "event_signals": ["MI系列订单", "财报"], "link_logic": "推理芯片/ASIC源事件"},
+        {"market": "US", "ticker": "AVGO", "name": "Broadcom", "role": "primary", "transmission_type": "source", "event_signals": ["TPU订单情绪"], "link_logic": "推理芯片/ASIC源事件"},
+        {"market": "CN", "ticker": "688256.SH", "name": "寒武纪", "role": "transmission", "transmission_type": "sentiment", "link_logic": "国产AI芯片情绪强相关"},
+        {"market": "CN", "ticker": "688041.SH", "name": "海光信息", "role": "transmission", "transmission_type": "sentiment", "link_logic": "国产CPU/DCU"},
+        {"market": "CN", "ticker": "603501.SH", "name": "韦尔股份", "role": "transmission", "transmission_type": "sentiment", "link_logic": "半导体设计, 情绪传导"}
+      ]
+    }
+  ],
+  "event_type_mapping": {
+    "8-K": {"description": "重大事件公告", "high_signal_types": ["财报预告", "大客户合同", "高管变动", "业绩指引调整"], "transmission_speed": "1-3个交易日"},
+    "4": {"description": "内部人交易", "high_signal_types": ["大额减持", "集中增持"], "transmission_speed": "3-10个交易日"},
+    "10-Q": {"description": "季报", "high_signal_types": ["capex指引", "营收分项", "库存变化"], "transmission_speed": "即日反应, 1-5日扩散"},
+    "10-K": {"description": "年报", "high_signal_types": ["capex指引", "营收分项", "库存变化"], "transmission_speed": "即日反应, 1-5日扩散"}
+  },
+  "metadata": {
+    "total_us_tickers": 10,
+    "total_cn_tickers": 18,
+    "chains": 6,
+    "purpose": "MVP_research_validation",
+    "not_for_trading": true
+  }
+}

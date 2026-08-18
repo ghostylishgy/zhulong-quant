@@ -1,0 +1,66 @@
+{
+  "schema_version": "compass_business_node_dictionary_v0.1",
+  "dictionary_id": "compass_business_nodes_20260730_v0.1",
+  "no_trade_signal": true,
+  "themes": [
+    {
+      "theme_key": "power_grid_bottlenecks",
+      "compass_line_keys": ["A", "A线"],
+      "theme_match_terms": ["特高压", "变压器", "电力设备", "取向硅钢", "分接开关"],
+      "nodes": [
+        {
+          "node_id": "A_TRANSFORMER",
+          "label": "变压器",
+          "terms": ["变压器", "配电变压器", "干式变压器", "电力变压器"]
+        },
+        {
+          "node_id": "A_TAP_CHANGER",
+          "label": "分接开关",
+          "terms": ["分接开关", "有载分接开关", "无励磁分接开关"]
+        },
+        {
+          "node_id": "A_GRAIN_ORIENTED_STEEL",
+          "label": "取向硅钢",
+          "terms": ["取向硅钢", "取向电工钢", "电工钢", "硅钢"]
+        },
+        {
+          "node_id": "A_GRID_TRANSMISSION",
+          "label": "输变电设备",
+          "terms": ["特高压", "输变电", "电网设备", "高压开关", "电力设备"]
+        },
+        {
+          "node_id": "A_DATA_CENTER_POWER",
+          "label": "数据中心供配电",
+          "terms": ["数据中心变压器", "固态变压器", "算电岛", "SST"]
+        }
+      ]
+    },
+    {
+      "theme_key": "advanced_packaging_materials",
+      "compass_line_keys": ["I", "I线"],
+      "theme_match_terms": ["先进封装", "ABF", "封装基板", "HBM", "半导体材料"],
+      "nodes": [
+        {
+          "node_id": "I_PACKAGE_SUBSTRATE",
+          "label": "封装基板",
+          "terms": ["ABF", "封装基板", "IC载板", "集成电路封装基板"]
+        },
+        {
+          "node_id": "I_ADVANCED_PACKAGING",
+          "label": "先进封装",
+          "terms": ["先进封装", "2.5D封装", "3D封装", "Chiplet"]
+        },
+        {
+          "node_id": "I_HBM_MATERIAL",
+          "label": "HBM相关材料",
+          "terms": ["HBM", "高带宽存储", "存储封装材料"]
+        },
+        {
+          "node_id": "I_PACKAGING_MATERIAL",
+          "label": "半导体封装材料",
+          "terms": ["半导体封装材料", "封装材料", "环氧塑封料", "底部填充材料"]
+        }
+      ]
+    }
+  ]
+}

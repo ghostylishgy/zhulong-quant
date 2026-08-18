@@ -1,0 +1,185 @@
+# Nexus 1.0-rc Configuration
+# 战备配置文件 - 固化版本
+
+version: "1.0-rc"
+codename: "Phoenix Rising"
+release_date: "2026-02-02"
+
+# ==================== 系统架构 ====================
+architecture:
+  mode: "distributed"
+  nodes:
+    node_101:
+      role: "orchestrator"
+      hostname: "192.0.2.10"
+      services:
+        - "nexus"
+        - "poller"
+        - "dashboard"
+    node_102:
+      role: "inference_engine"
+      hostname: "192.0.2.20"
+      memory: "10GB"
+      services:
+        - "ollama"
+
+# ==================== 模型配置 ====================
+models:
+  l2_sentinel:
+    name: "lfm-sentinel:latest"
+    size: "956MB"
+    timeout: 600  # 固化：600s
+    processor: "CPU"
+
+  l3_strategic:
+    name: "deepseek-r1:7b"
+    size: "4.6GB"
+    timeout: 1800  # 固化：1800s
+    processor: "CPU"
+
+  l4_cloud:
+    primary:
+      provider: "DeepSeek"
+      model: "deepseek-chat"
+      base_url: "https://api.deepseek.com"
+      timeout: 60
+    backup:
+      provider: "ZhipuAI"
+      model: "glm-4-flash"
+      base_url: "https://open.bigmodel.cn/api/paas/v4"
+      timeout: 60
+
+# ==================== 内存卫士配置 ====================
+memory_guard:
+  enabled: true
+  node_102_memory_limit: "10GB"
+  keep_alive: "2m"  # 固化：2分钟
+  auto_unload: true
+  max_wait_unload: 30  # 秒
+
+# ==================== 24小时战备节奏 ====================
+battle_rhythm:
+  timezone: "Asia/Shanghai"
+
+  schedules:
+    - name: "09:15 静默状态审计"
+      time: "09:15"
+      tasks:
+        - "check_watchlist"
+        - "verify_services"
+        - "memory_status"
+
+    - name: "15:00 全量数据同步"
+      time: "15:00"
+      tasks:
+        - "sync_stock_data"
+        - "update_indicators"
+        - "memory_purge"
+
+    - name: "21:00 深度审计"
+      time: "21:00"
+      tasks:
+        - "l1_physical_filter"
+        - "l2_sentinel_scan"
+        - "l3_strategic_audit"
+        - "l4_cloud_arbiter"
+
+# ==================== 日志配置 ====================
+logging:
+  level: "INFO"
+  format: "professional"  # 移除 Emoji
+  levels:
+    - "INFO"
+    - "WARN"
+    - "ERROR"
+    - "AUDIT"
+
+  files:
+    nexus: "/root/quant_project/logs/nexus.log"
+    poller: "/root/quant_project/logs/poller.log"
+    audit: "/root/quant_project/logs/audit.log"
+    error: "/root/quant_project/logs/error.log"
+
+# ==================== 数据库配置 ====================
+database:
+  path: "/root/quant_project/storage/database/zhulong.duckdb"
+  tables:
+    - "stock_daily"
+    - "stock_audit"
+    - "watchlist"
+
+  performance:
+    journal_mode: "WAL"
+    synchronous: "NORMAL"
+    cache_size: 10000
+
+# ==================== API 配置 ====================
+apis:
+  tushare:
+    enabled: true
+    token_env: "TUSHARE_TOKEN"
+
+  akshare:
+    enabled: false  # 已失效
+
+  deepseek:
+    enabled: true
+    api_key_env: "DEEPSEEK_API_KEY"
+    base_url: "https://api.deepseek.com"
+
+  zhipu:
+    enabled: true
+    api_key_env: "ZHIPU_API_KEY"
+    base_url: "https://open.bigmodel.cn/api/paas/v4"
+
+# ==================== 性能基准 ====================
+performance_benchmarks:
+  # 基于 10GB 内存环境的实测数据
+  l2_sentinel:
+    avg_time: 148  # 秒
+    max_time: 300
+    success_rate: 0.95
+
+  l3_strategic:
+    avg_time: 1512  # 秒
+    max_time: 1800
+    success_rate: 0.90
+
+  l4_cloud:
+    avg_time: 3.3  # 秒
+    max_time: 60
+    success_rate: 1.0
+
+  full_chain:
+    avg_time: 1663  # 秒 (~28分钟)
+    max_time: 2460  # 秒 (~41分钟)
+
+# ==================== 红蓝对抗配置 ====================
+red_blue_combat:
+  enabled: true
+  roles:
+    sp:  # Signal Proponent
+      name: "买入逻辑辩护"
+      max_length: 50
+    rc:  # Risk Challenger
+      name: "风险点审计"
+      max_length: 50
+      veto_power: true
+    arbiter:
+      name: "最终裁决"
+      score_range: [0, 100]
+
+# ==================== 固化标记 ====================
+solidification:
+  date: "2026-02-02 23:52:33"
+  status: "battle_ready"
+  verified_targets:
+    - symbol: "300274"
+      l2_time: 148
+      l3_time: 1512
+      l4_time: 3.3
+      decision_score: 35
+      red_blue_output: |
+        SP: 上升趋势确立，成交量放大配合，MA5上穿MA10，短期动能强劲，技术面支持买入。
+        RC: 头肩顶形态预警，周线级别潜在反转风险高，技术指标与形态背离，否决买入信号。
+        Arbiter: 周线头肩顶为关键阻力形态，压制短期均线突破信号，风险权重高于趋势动能。

@@ -1,0 +1,34 @@
+{
+  "version": "v1",
+  "description": "Macro Resonance Engine V1 config",
+  "topic_blacklist": [
+    "融资融券",
+    "转融券标的",
+    "沪股通",
+    "深股通",
+    "标普道琼斯A股",
+    "富时罗素概念",
+    "MSCI概念",
+    "同股不同权",
+    "融资标的股",
+    "融券标的股"
+  ],
+  "scoring": {
+    "w_moneyflow": 0.35,
+    "w_limit_strength": 0.3,
+    "w_breadth": 0.2,
+    "w_heat": 0.15
+  },
+  "anti_fake": {
+    "enable": true,
+    "divergence_open_board_ratio": 1.5,
+    "bleeding_top_n": 10,
+    "bleeding_net_mf_threshold": -30000,
+    "volume_price_divergence_threshold": 0.0,
+    "open_board_ratio_threshold": 0.35,
+    "high_turnover_threshold": 2.0
+  },
+  "output": {
+    "top_k": 5
+  }
+}
