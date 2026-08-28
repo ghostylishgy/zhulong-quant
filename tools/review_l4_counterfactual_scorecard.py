@@ -24,8 +24,9 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DB = ROOT / "storage/database/zhulong.duckdb"
 DEFAULT_BINDINGS = ROOT / "storage/reports/audit_contracts"
 DEFAULT_OUTPUT = ROOT / "storage/reports/l4_counterfactual"
-SCHEMA_VERSION = "bl021_l4_counterfactual_scorecard_v0.1"
+SCHEMA_VERSION = "bl021_l4_counterfactual_scorecard_v0.2"
 PRICE_MODEL = "T1_OPEN_T3_CLOSE_GROSS_PROXY_V0.1"
+L4_EXECUTION_PATHS = {"FULL_COURT", "SIMPLIFIED"}
 REVIEW_SAMPLE_GATE = 50
 SAFE_NEWS_STATUSES = {"NEWS_CLEAR", "NEWS_SIGNAL"}
 RISK_NEWS_GATES = {"WOULD_CAP_HOLD", "WOULD_VETO"}
@@ -119,16 +120,45 @@ def load_verified_bindings(directory: Path) -> tuple[dict[tuple[str, str], dict]
     return bindings, warnings
 
 
+def _l4_execution_path(notary_verdict: Any, notary_payload: Any) -> str:
+    if str(notary_verdict or "").strip() or str(notary_payload or "").strip():
+        return "FULL_COURT"
+    return "SIMPLIFIED"
+
+
 def _load_audits(conn: duckdb.DuckDBPyConnection, start: str, end: str) -> list[dict]:
+    columns = {
+        str(row[1]).lower()
+        for row in conn.execute("PRAGMA table_info('nexus_audits')").fetchall()
+    }
+    l3_score = "COALESCE(l3_audit_score, 0)" if "l3_audit_score" in columns else "0"
+    market_sentiment = (
+        "COALESCE(l4_market_sentiment, 0)"
+        if "l4_market_sentiment" in columns else "0"
+    )
+    notary_verdict = (
+        "COALESCE(l4_notary_verdict, '')"
+        if "l4_notary_verdict" in columns else "''"
+    )
+    notary_payload = (
+        "COALESCE(l4_notary_payload, '')"
+        if "l4_notary_payload" in columns else "''"
+    )
+    veto_reason = (
+        "COALESCE(l4_veto_reason, '')"
+        if "l4_veto_reason" in columns else "''"
+    )
     rows = conn.execute(
-        """
+        f"""
         SELECT task_id, run_id, symbol, COALESCE(name, ''),
                CAST(trade_date AS VARCHAR),
                UPPER(COALESCE(l4_final_verdict, '')),
                COALESCE(l4_final_score, final_score, 0),
                UPPER(COALESCE(l4_news_status, '')),
                UPPER(COALESCE(l4_news_gate, '')),
-               COALESCE(l4_news_as_of, '')
+               COALESCE(l4_news_as_of, ''),
+               {l3_score}, {market_sentiment},
+               {notary_verdict}, {notary_payload}, {veto_reason}
         FROM nexus_audits
         WHERE CAST(trade_date AS DATE) BETWEEN CAST(? AS DATE) AND CAST(? AS DATE)
           AND UPPER(COALESCE(status, '')) = 'L4_DONE'
@@ -139,8 +169,20 @@ def _load_audits(conn: duckdb.DuckDBPyConnection, start: str, end: str) -> list[
     keys = [
         "task_id", "run_id", "symbol", "name", "trade_date", "verdict",
         "final_score", "news_status", "news_gate", "news_as_of",
+        "l3_audit_score", "market_sentiment", "notary_verdict",
+        "notary_payload", "veto_reason",
     ]
-    return [dict(zip(keys, row)) for row in rows if str(row[5]) in VERDICTS]
+    result = []
+    for raw in rows:
+        if str(raw[5]) not in VERDICTS:
+            continue
+        row = dict(zip(keys, raw))
+        row["l4_execution_path"] = _l4_execution_path(
+            row["notary_verdict"], row["notary_payload"]
+        )
+        row["notary_payload_present"] = bool(str(row.pop("notary_payload") or "").strip())
+        result.append(row)
+    return result
 
 
 def _stock_basic(conn: duckdb.DuckDBPyConnection) -> dict[str, dict]:
@@ -306,6 +348,64 @@ def _group_stats(rows: list[dict]) -> dict[str, dict]:
     return result
 
 
+def _path_stats(rows: list[dict]) -> dict[str, dict]:
+    groups: dict[str, list[dict]] = defaultdict(list)
+    for row in rows:
+        groups[str(row.get("l4_execution_path") or "UNKNOWN")].append(row)
+    result: dict[str, dict] = {}
+    for path_name in sorted(L4_EXECUTION_PATHS | set(groups)):
+        items = groups.get(path_name, [])
+        returns = [
+            item.get("gross_return_pct")
+            for item in items
+            if item.get("gross_return_pct") is not None
+        ]
+        scores = [item.get("final_score") for item in items]
+        result[path_name] = {
+            "samples": len(items),
+            "verdict_counts": dict(sorted(Counter(
+                str(item.get("verdict") or "UNKNOWN") for item in items
+            ).items())),
+            "avg_final_score": _mean(scores),
+            "median_final_score": _median(scores),
+            "distinct_final_scores": sorted({_float(value) for value in scores}),
+            "avg_l3_audit_score": _mean(item.get("l3_audit_score") for item in items),
+            "avg_market_sentiment": _mean(item.get("market_sentiment") for item in items),
+            "matured_return_samples": len(returns),
+            "avg_gross_return_pct": _mean(returns),
+            "median_gross_return_pct": _median(returns),
+            "win_rate": (
+                round(sum(value > 0 for value in returns) / len(returns), 4)
+                if returns else None
+            ),
+        }
+    return result
+
+
+def _daily_path_stats(rows: list[dict]) -> list[dict]:
+    groups: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    for row in rows:
+        key = (
+            str(row.get("trade_date") or "")[:10],
+            str(row.get("l4_execution_path") or "UNKNOWN"),
+        )
+        groups[key].append(row)
+    result = []
+    for (trade_date, path_name), items in sorted(groups.items()):
+        result.append({
+            "trade_date": trade_date,
+            "l4_execution_path": path_name,
+            "samples": len(items),
+            "verdict_counts": dict(sorted(Counter(
+                str(item.get("verdict") or "UNKNOWN") for item in items
+            ).items())),
+            "avg_final_score": _mean(item.get("final_score") for item in items),
+            "avg_l3_audit_score": _mean(item.get("l3_audit_score") for item in items),
+            "avg_market_sentiment": _mean(item.get("market_sentiment") for item in items),
+        })
+    return result
+
+
 def _actual_shadow_summary(conn: duckdb.DuckDBPyConnection, task_ids: list[str]) -> dict:
     if not task_ids:
         return {"positions": 0, "closed": 0, "avg_gross_pnl_ratio": None}
@@ -352,6 +452,13 @@ def build_scorecard(
         "exclusion_reason_counts_overlap": True,
         "bound_versioned_by_verdict": _group_stats(bound),
         "unbound_diagnostic_by_verdict": _group_stats(unbound),
+        "all_audit_by_l4_path": _path_stats(rows),
+        "bound_versioned_by_l4_path": _path_stats(bound),
+        "daily_l4_path_distribution": _daily_path_stats(rows),
+        "l4_path_identification": (
+            "FULL_COURT when persisted Notary verdict or payload is present; "
+            "otherwise SIMPLIFIED. This is a read-only historical diagnostic inference."
+        ),
         "actual_shadow_pass_execution": actual,
         "review_gate_samples": REVIEW_SAMPLE_GATE,
         "review_status": (
@@ -396,10 +503,27 @@ def render_markdown(payload: Mapping[str, Any]) -> str:
         f"- verified_run_bindings: `{summary['verified_run_bindings']}`",
         f"- review_status: `{summary['review_status']}`",
         f"- artifact_identity_sha256: `{payload['artifact_identity_sha256']}`",
+        "", "## L4 Execution Paths", "",
+        "- Historical path identity is inferred from persisted Notary fields; it does not change any verdict.",
+        "| Path | Samples | PASS | HOLD | VETO | Avg score | Avg L3 | Avg phi |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|",
+    ]
+    for path_name, item in summary["all_audit_by_l4_path"].items():
+        verdicts = item["verdict_counts"]
+        def path_fmt(value):
+            return "" if value is None else f"{value:.4f}"
+        lines.append(
+            f"| {path_name} | {item['samples']} | {verdicts.get('PASS', 0)} | "
+            f"{verdicts.get('HOLD', 0)} | {verdicts.get('VETO', 0)} | "
+            f"{path_fmt(item['avg_final_score'])} | "
+            f"{path_fmt(item['avg_l3_audit_score'])} | "
+            f"{path_fmt(item['avg_market_sentiment'])} |"
+        )
+    lines.extend([
         "", "## Versioned Bound Samples", "",
         "| Verdict | Samples | Avg % | Median % | Win rate | MFE % | MAE % |",
         "|---|---:|---:|---:|---:|---:|---:|",
-    ]
+    ])
     for verdict, item in summary["bound_versioned_by_verdict"].items():
         def fmt(value):
             return "" if value is None else f"{value:.4f}"
@@ -407,6 +531,22 @@ def render_markdown(payload: Mapping[str, Any]) -> str:
             f"| {verdict} | {item['samples']} | {fmt(item['avg_gross_return_pct'])} | "
             f"{fmt(item['median_gross_return_pct'])} | {fmt(item['win_rate'])} | "
             f"{fmt(item['avg_mfe_pct'])} | {fmt(item['avg_mae_pct'])} |"
+        )
+    lines.extend([
+        "", "## Daily Path Distribution", "",
+        "| Date | Path | Samples | PASS | HOLD | VETO | Avg score | Avg L3 | Avg phi |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|",
+    ])
+    for item in summary["daily_l4_path_distribution"]:
+        verdicts = item["verdict_counts"]
+        def daily_fmt(value):
+            return "" if value is None else f"{value:.4f}"
+        lines.append(
+            f"| {item['trade_date']} | {item['l4_execution_path']} | {item['samples']} | "
+            f"{verdicts.get('PASS', 0)} | {verdicts.get('HOLD', 0)} | "
+            f"{verdicts.get('VETO', 0)} | {daily_fmt(item['avg_final_score'])} | "
+            f"{daily_fmt(item['avg_l3_audit_score'])} | "
+            f"{daily_fmt(item['avg_market_sentiment'])} |"
         )
     lines.extend(["", "## Exclusions", "", "| Reason | Count |", "|---|---:|"])
     for reason, count in summary["exclusion_reason_counts"].items():

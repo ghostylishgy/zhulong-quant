@@ -907,32 +907,66 @@ def _find_unsupported_evidence_claims(report: str, evidence_text: str) -> List[s
     return issues
 
 
+_INSTITUTION_POSITIVE_CLAIM = r"机构.{0,16}(?:净买入|增仓|买入|(?:资金)?方向.{0,4}(?:为|是)?正(?:向|值)?)"
+_INSTITUTION_NEGATIVE_CLAIM = r"机构.{0,16}(?:净卖出|减仓|卖出|(?:资金)?方向.{0,4}(?:为|是)?负(?:向|值)?)"
+_HOT_MONEY_POSITIVE_CLAIM = r"游资.{0,16}(?:净买入|介入|增仓|买入|方向.{0,4}(?:为|是)?正(?:向|值)?)"
+_HOT_MONEY_NEGATIVE_CLAIM = r"游资.{0,16}(?:净卖出|撤出|减仓|卖出|方向.{0,4}(?:为|是)?负(?:向|值)?)"
+_LHB_POSITIVE_CLAIM = r"龙虎榜.{0,16}(?:净买入|净流入|买入|净额.{0,4}(?:为|是)?正(?:数|值)?)"
+_LHB_NEGATIVE_CLAIM = r"龙虎榜.{0,16}(?:净卖出|净流出|卖出|净额.{0,4}(?:为|是)?负(?:数|值)?)"
+_MARGIN_POSITIVE_CLAIM = r"融资(?:余额|资金).{0,16}(?:增加|上升|净流入|流入|(?:变化|方向).{0,4}(?:为|是)?正(?:数|向|值)?)"
+_MARGIN_NEGATIVE_CLAIM = r"融资(?:余额|资金).{0,16}(?:减少|下降|净流出|流出|(?:变化|方向).{0,4}(?:为|是)?负(?:数|向|值)?)"
+
+_STRUCTURED_DIRECTION_IDS = {
+    "institution": "ZETA.INST_DIRECTION",
+    "hot_money": "ZETA.HOT_MONEY_DIRECTION",
+    "lhb": "ZETA.LHB_NET",
+    "margin": "ZETA.MARGIN_DELTA",
+}
+
+
+def _structured_evidence_signs(evidence_text: str, evidence_id: str) -> set:
+    """Extract signs from canonical numeric evidence facts, independent of prose aliases."""
+    evidence = str(evidence_text or "")
+    pattern = (
+        rf'"evidence_id"\s*:\s*"{re.escape(evidence_id)}"'
+        rf'.{{0,320}}?"value"\s*:\s*(-?\d+(?:\.\d+)?)'
+    )
+    signs = set()
+    for raw in re.findall(pattern, evidence, re.IGNORECASE | re.DOTALL):
+        try:
+            value = float(raw)
+        except (TypeError, ValueError):
+            continue
+        signs.add(1 if value > 0 else (-1 if value < 0 else 0))
+    return signs
+
+
 _DIRECTIONAL_EVIDENCE_RULES = (
     (
         "institution",
-        r"机构.{0,12}(?:净买入|增仓|买入)",
-        r"机构.{0,12}(?:净卖出|减仓|卖出)",
+        _INSTITUTION_POSITIVE_CLAIM,
+        _INSTITUTION_NEGATIVE_CLAIM,
         r"#inst_buy|INST\s*(?:=|:)\s*1|INST_ACC|机构.{0,12}(?:净买入|增仓|买入)",
         r"#inst_sell|INST\s*(?:=|:)\s*-1|INST_DEC|机构.{0,12}(?:净卖出|减仓|卖出)",
     ),
     (
         "hot_money",
-        r"游资.{0,12}(?:净买入|介入|增仓|买入)",
-        r"游资.{0,12}(?:净卖出|撤出|减仓|卖出)",
+        _HOT_MONEY_POSITIVE_CLAIM,
+        _HOT_MONEY_NEGATIVE_CLAIM,
         r"#hot_buy|HOT\s*(?:=|:)\s*1|游资.{0,12}(?:净买入|介入|增仓|买入)",
         r"#hot_sell|HOT\s*(?:=|:)\s*-1|游资.{0,12}(?:净卖出|撤出|减仓|卖出)",
     ),
     (
         "lhb",
-        r"龙虎榜.{0,12}(?:净买入|净流入|买入)",
-        r"龙虎榜.{0,12}(?:净卖出|净流出|卖出)",
+        _LHB_POSITIVE_CLAIM,
+        _LHB_NEGATIVE_CLAIM,
         r"#lhb_buy|LHB\s*(?:=|:)\s*(?!-)[1-9]|龙虎榜.{0,12}(?:净买入|净流入|买入)",
         r"#lhb_sell|LHB\s*(?:=|:)\s*-|龙虎榜.{0,12}(?:净卖出|净流出|卖出)",
     ),
     (
         "margin",
-        r"融资(?:余额|资金).{0,12}(?:增加|上升|净流入|流入)",
-        r"融资(?:余额|资金).{0,12}(?:减少|下降|净流出|流出)",
+        _MARGIN_POSITIVE_CLAIM,
+        _MARGIN_NEGATIVE_CLAIM,
         r"#margin_inflow|MARG\s*(?:=|:)\s*(?!-)[1-9]|融资.{0,12}(?:增加|上升|净流入|流入)",
         r"#margin_outflow|MARG\s*(?:=|:)\s*-|融资.{0,12}(?:减少|下降|净流出|流出)",
     ),
@@ -957,7 +991,8 @@ _DIRECTIONAL_EVIDENCE_RULES = (
 _DIRECTION_TERMS = re.compile(
     r"(?:\u51c0\u4e70\u5165|\u51c0\u5356\u51fa|\u51c0\u6d41\u5165|\u51c0\u6d41\u51fa|"
     r"\u589e\u4ed3|\u51cf\u4ed3|\u4e70\u5165|\u5356\u51fa|\u589e\u52a0|\u51cf\u5c11|"
-    r"\u4e0a\u5347|\u4e0b\u964d|\u6d41\u5165|\u6d41\u51fa)"
+    r"\u4e0a\u5347|\u4e0b\u964d|\u6d41\u5165|\u6d41\u51fa|"
+    r"\u4e3a\u6b63|\u4e3a\u8d1f|\u6b63\u5411|\u8d1f\u5411|\u6b63\u503c|\u8d1f\u503c)"
 )
 _DIRECTION_NEGATION_PREFIX = re.compile(
     r"(?:\u5e76\u6ca1\u6709|\u5e76\u4e0d|\u5e76\u672a|\u6ca1\u6709|\u4e0d\u662f|"
@@ -986,26 +1021,18 @@ def _has_unnegated_directional_claim(text: str, pattern: str) -> bool:
 
 
 _ZERO_DIRECTION_RULES = (
-    (
-        "lhb",
-        "ZETA.LHB_NET",
-        r"龙虎榜.{0,12}(?:净买入|净流入|买入|净卖出|净流出|卖出)",
-    ),
+    ("lhb", "ZETA.LHB_NET", rf"(?:{_LHB_POSITIVE_CLAIM}|{_LHB_NEGATIVE_CLAIM})"),
     (
         "institution",
         "ZETA.INST_DIRECTION",
-        r"机构.{0,12}(?:净买入|增仓|买入|净卖出|减仓|卖出)",
+        rf"(?:{_INSTITUTION_POSITIVE_CLAIM}|{_INSTITUTION_NEGATIVE_CLAIM})",
     ),
     (
         "hot_money",
         "ZETA.HOT_MONEY_DIRECTION",
-        r"游资.{0,12}(?:净买入|介入|增仓|买入|净卖出|撤出|减仓|卖出)",
+        rf"(?:{_HOT_MONEY_POSITIVE_CLAIM}|{_HOT_MONEY_NEGATIVE_CLAIM})",
     ),
-    (
-        "margin",
-        "ZETA.MARGIN_DELTA",
-        r"融资(?:余额|资金).{0,12}(?:增加|上升|净流入|流入|减少|下降|净流出|流出)",
-    ),
+    ("margin", "ZETA.MARGIN_DELTA", rf"(?:{_MARGIN_POSITIVE_CLAIM}|{_MARGIN_NEGATIVE_CLAIM})"),
 )
 
 
@@ -1015,11 +1042,7 @@ def _find_zero_direction_claims(report: str, evidence_text: str) -> List[str]:
     evidence = str(evidence_text or "")
     issues: List[str] = []
     for label, evidence_id, claim_pattern in _ZERO_DIRECTION_RULES:
-        neutral_pattern = (
-            rf'"evidence_id"\s*:\s*"{re.escape(evidence_id)}"'
-            rf'.{{0,160}}?"value"\s*:\s*0(?:\.0+)?(?:\s*[,}}])'
-        )
-        if re.search(neutral_pattern, evidence, re.IGNORECASE | re.DOTALL) and _has_unnegated_directional_claim(
+        if 0 in _structured_evidence_signs(evidence, evidence_id) and _has_unnegated_directional_claim(
             output, claim_pattern
         ):
             issues.append(f"direction:{label}:claim_vs_neutral_evidence")
@@ -1036,6 +1059,17 @@ def _find_directional_evidence_conflicts(report: str, evidence_text: str) -> Lis
         has_claim_neg = _has_unnegated_directional_claim(output, claim_neg)
         has_evidence_pos = bool(re.search(evidence_pos, evidence, re.IGNORECASE))
         has_evidence_neg = bool(re.search(evidence_neg, evidence, re.IGNORECASE))
+        structured_ids = (
+            tuple(_STRUCTURED_DIRECTION_IDS.values())
+            if label == "generic_flow"
+            else (_STRUCTURED_DIRECTION_IDS.get(label),)
+        )
+        structured_signs = set()
+        for evidence_id in structured_ids:
+            if evidence_id:
+                structured_signs.update(_structured_evidence_signs(evidence, evidence_id))
+        has_evidence_pos = has_evidence_pos or 1 in structured_signs
+        has_evidence_neg = has_evidence_neg or -1 in structured_signs
         if has_claim_pos and has_evidence_neg and not has_evidence_pos:
             issues.append(f"direction:{label}:positive_claim_vs_negative_evidence")
         if has_claim_neg and has_evidence_pos and not has_evidence_neg:
@@ -4721,6 +4755,7 @@ NOTARY_USER_PROMPT = (
     "标的: {symbol}\n"
     "authoritative_verdict: {authoritative_verdict}\n"
     "authoritative_score: {authoritative_score}\n"
+    "权威证据包:\n{evidence_packet}\n"
     "Judge 报告:\n{judge_report}\n"
     "Bull 报告:\n{bull_report}\n"
     "Bear 报告:\n{bear_report}\n\n"
@@ -5812,10 +5847,11 @@ class L4SupremeCourt:
                 unsupported = _find_evidence_contract_issues(narrative, evidence_text)
                 if unsupported:
                     log(f"  JUDGE evidence guard fallback: {unsupported}", "L4.2", "WARNING")
-                    guarded = self._local_ruling(bull_result, bear_result, phi)
+                    guarded = self._insufficient_evidence_ruling(
+                        "Judge unsupported evidence rejected; candidate eligibility remains HOLD.",
+                        report,
+                    )
                     guarded.update({
-                        "reasoning": "Judge unsupported evidence rejected",
-                        "report": "JUDGE_EVIDENCE_GUARD: unsupported claims rejected",
                         "raw_report": report,
                         "judge_parse_mode": "evidence_guard",
                         "semantic_quality": "UNSUPPORTED_EVIDENCE",
@@ -5859,9 +5895,9 @@ class L4SupremeCourt:
         w_bull = 0.4 + 0.3 * phi
         w_bear = 1.0 - w_bull
         final_score = int(s_bull * w_bull + (100 - bear_risk) * w_bear)
-        if final_score >= 70:
+        if final_score >= L4_PASS_THRESHOLD:
             verdict = "PASS"
-        elif final_score >= 50:
+        elif final_score >= L4_WATCH_THRESHOLD:
             verdict = "HOLD"
         else:
             verdict = "VETO"
@@ -6171,7 +6207,16 @@ class L4SupremeCourt:
     # L4.3 Post-Audit Notary (GLM-4.7 事实校准)
     # ═══════════════════════════════════════════════════
 
-    def post_audit_notary(self, candidate, l1_data, court_ruling, bull_report="", bear_report="", news_context=""):
+    def post_audit_notary(
+        self,
+        candidate,
+        l1_data,
+        court_ruling,
+        bull_report="",
+        bear_report="",
+        news_context="",
+        evidence_packet="",
+    ):
         """L4.3 recorder: normalize and verify the authoritative Judge output."""
         log(f"L4.3 Post-Audit Notary: {candidate.symbol}", "L4.3")
 
@@ -6219,6 +6264,7 @@ class L4SupremeCourt:
                 symbol=candidate.symbol,
                 authoritative_verdict=authoritative_verdict,
                 authoritative_score=authoritative_score,
+                evidence_packet=str(evidence_packet or ""),
                 judge_report=judge_report,
                 bull_report=bull_report or "",
                 bear_report=bear_report or "",
@@ -6265,6 +6311,7 @@ class L4SupremeCourt:
                                     bull_report,
                                     bear_report,
                                     news_context,
+                                    evidence_packet,
                                 )
                             )
                             unsupported = _find_evidence_contract_issues(
@@ -6410,15 +6457,17 @@ class L4SupremeCourt:
         if l3_hold_cap:
             cap_reasons.append("L3 dual-factor HOLD")
 
-        if cap_reasons and s_final >= L4_PASS_THRESHOLD:
-            capped_score = min(int(s_final or 0), score_cap)
-            result.notary_advisory = "; ".join(cap_reasons) + " verdict cap"
-            log(
-                f"  Verdict cap: {' + '.join(cap_reasons)} keeps executable verdict <= HOLD "
-                f"(raw_s_final={s_final}, capped={capped_score})",
-                "L4",
-                "WARNING",
-            )
+        if cap_reasons:
+            raw_score = int(s_final or 0)
+            capped_score = max(L4_WATCH_THRESHOLD, min(raw_score, score_cap))
+            if capped_score != raw_score:
+                result.notary_advisory = "; ".join(cap_reasons) + " verdict band clamp"
+                log(
+                    f"  Verdict band clamp: {' + '.join(cap_reasons)} keeps executable verdict in HOLD "
+                    f"(raw_s_final={raw_score}, clamped={capped_score})",
+                    "L4",
+                    "WARNING",
+                )
             return capped_score, False
 
         return int(s_final or 0), False
@@ -6612,7 +6661,7 @@ class L4SupremeCourt:
                 news_context,
                 evidence_packet,
             )
-            s_v3 = judge_result.get("S_v3", 50)
+            s_v3 = judge_result.get("S_v3", L4_WATCH_THRESHOLD)
 
             # v3.1: NO external arbitration on deadlock
             # Judge's risk-aversion constraint handles low confidence internally
@@ -6632,6 +6681,7 @@ class L4SupremeCourt:
                 bull_result.get("report", ""),
                 bear_result.get("report", ""),
                 news_context,
+                self._render_evidence_packet(evidence_packet),
             )
             result.notary_verdict = str(notary.get("notary_verdict", "") or "")
             result.notary_fatal_flag = bool(notary.get("notary_fatal_flag", False))

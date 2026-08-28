@@ -24,6 +24,10 @@ REPORT_DIR = ROOT / "storage/reports/l1_scorecard"
 TEAM_TARGET = 50
 MIN_COVERAGE = 0.80
 DRAW_MARGIN = 0.25
+CROSS_SECTION_MIN_DAYS = 20
+CROSS_SECTION_MIN_COUNT = 10
+CROSS_SECTION_TOP_K = 10
+CROSS_SECTION_GROUPS = 5
 BLOCKED_ACTIONS = [
     "write_duckdb", "call_l2_l3_l4", "write_shadow", "write_rag_memory",
     "write_nexus_audits", "trigger_daemon", "generate_trade",
@@ -289,6 +293,221 @@ def safe_median(values: Iterable[float | None]) -> float | None:
     return round(statistics.median(valid), 4) if valid else None
 
 
+def safe_mean(values: Iterable[float | None]) -> float | None:
+    valid = [float(value) for value in values if value is not None]
+    return round(statistics.fmean(valid), 6) if valid else None
+
+
+def ranked(values: List[float]) -> List[float]:
+    """Return average ranks for ties without adding a scipy dependency."""
+    ordered = sorted(enumerate(values), key=lambda item: item[1])
+    result = [0.0] * len(values)
+    start = 0
+    while start < len(ordered):
+        end = start + 1
+        while end < len(ordered) and ordered[end][1] == ordered[start][1]:
+            end += 1
+        average_rank = (start + 1 + end) / 2.0
+        for index in range(start, end):
+            result[ordered[index][0]] = average_rank
+        start = end
+    return result
+
+
+def spearman_pairs(pairs: Iterable[tuple[float, float]], minimum: int = CROSS_SECTION_MIN_COUNT):
+    clean = [(float(left), float(right)) for left, right in pairs]
+    count = len(clean)
+    if count < minimum:
+        return {"count": count, "rank_ic": None, "status": "INSUFFICIENT_COUNT"}
+    left_ranks = ranked([item[0] for item in clean])
+    right_ranks = ranked([item[1] for item in clean])
+    left_mean = statistics.fmean(left_ranks)
+    right_mean = statistics.fmean(right_ranks)
+    numerator = sum(
+        (left - left_mean) * (right - right_mean)
+        for left, right in zip(left_ranks, right_ranks)
+    )
+    left_ss = sum((value - left_mean) ** 2 for value in left_ranks)
+    right_ss = sum((value - right_mean) ** 2 for value in right_ranks)
+    if left_ss <= 0 or right_ss <= 0:
+        return {"count": count, "rank_ic": None, "status": "CONSTANT_INPUT"}
+    return {
+        "count": count,
+        "rank_ic": round(numerator / (left_ss * right_ss) ** 0.5, 6),
+        "status": "OK",
+    }
+
+
+def annotate_pick(
+    outcome: Dict[str, Any],
+    candidate: Dict[str, Any],
+    signal_score: float | None,
+    signal_source: str,
+) -> Dict[str, Any]:
+    classification = candidate.get("classification") or {}
+    return {
+        **outcome,
+        "signal_score": signal_score,
+        "signal_source": signal_source,
+        "primary_path": classification.get("primary_path") or "UNCLASSIFIED",
+        "source_channels": list(candidate.get("source_channels") or []),
+    }
+
+
+def group_returns(picks: List[Dict[str, Any]], return_key: str) -> List[Dict[str, Any]]:
+    eligible = [
+        pick for pick in picks
+        if pick.get("signal_score") is not None and pick.get(return_key) is not None
+    ]
+    eligible.sort(key=lambda pick: (-float(pick["signal_score"]), pick["symbol"]))
+    groups = min(CROSS_SECTION_GROUPS, len(eligible))
+    output = []
+    for group_index in range(groups):
+        start = group_index * len(eligible) // groups
+        end = (group_index + 1) * len(eligible) // groups
+        rows = eligible[start:end]
+        output.append({
+            "group": f"Q{group_index + 1}",
+            "rank_order": "highest_signal_first",
+            "count": len(rows),
+            "mean_return_pct": safe_mean(row.get(return_key) for row in rows),
+        })
+    return output
+
+
+def daily_cross_section(picks: List[Dict[str, Any]]) -> Dict[str, Any]:
+    ordered = sorted(
+        (pick for pick in picks if pick.get("signal_score") is not None),
+        key=lambda pick: (-float(pick["signal_score"]), pick["symbol"]),
+    )
+    metrics = {}
+    for return_key in ("return_t1_pct", "return_t3_pct", "return_t5_pct"):
+        pairs = [
+            (pick["signal_score"], pick[return_key])
+            for pick in ordered if pick.get(return_key) is not None
+        ]
+        metrics[return_key] = {
+            **spearman_pairs(pairs),
+            "top_k": min(CROSS_SECTION_TOP_K, len(pairs)),
+            "top_k_mean_return_pct": safe_mean(
+                pick.get(return_key) for pick in ordered[:CROSS_SECTION_TOP_K]
+            ),
+            "all_mean_return_pct": safe_mean(pick.get(return_key) for pick in ordered),
+            "groups": group_returns(ordered, return_key),
+        }
+    return metrics
+
+
+def transition_metrics(daily: List[Dict[str, Any]], team_key: str) -> Dict[str, Any]:
+    transitions = []
+    for previous, current in zip(daily, daily[1:]):
+        previous_picks = previous[team_key]["picks"]
+        current_picks = current[team_key]["picks"]
+        previous_symbols = {pick["symbol"] for pick in previous_picks}
+        current_symbols = {pick["symbol"] for pick in current_picks}
+        union = previous_symbols | current_symbols
+        intersection = previous_symbols & current_symbols
+        turnover = 1.0 - len(intersection) / len(union) if union else None
+        previous_scores = {
+            pick["symbol"]: pick.get("signal_score") for pick in previous_picks
+            if pick.get("signal_score") is not None
+        }
+        current_scores = {
+            pick["symbol"]: pick.get("signal_score") for pick in current_picks
+            if pick.get("signal_score") is not None
+        }
+        shared = sorted(set(previous_scores) & set(current_scores))
+        autocorrelation = spearman_pairs(
+            [(previous_scores[symbol], current_scores[symbol]) for symbol in shared]
+        )
+        transitions.append({
+            "from_trade_date": previous["trade_date"],
+            "to_trade_date": current["trade_date"],
+            "shared_count": len(intersection),
+            "candidate_turnover": round(turnover, 6) if turnover is not None else None,
+            "signal_rank_autocorrelation": autocorrelation,
+        })
+    return {
+        "transition_count": len(transitions),
+        "mean_candidate_turnover": safe_mean(
+            item.get("candidate_turnover") for item in transitions
+        ),
+        "mean_signal_rank_autocorrelation": safe_mean(
+            item["signal_rank_autocorrelation"].get("rank_ic") for item in transitions
+        ),
+        "transitions": transitions,
+    }
+
+
+def stratified_summary(rows: Iterable[tuple[str, Dict[str, Any]]]) -> Dict[str, Any]:
+    grouped = defaultdict(list)
+    for label, pick in rows:
+        grouped[str(label or "UNKNOWN")].append(pick)
+    return {
+        label: {
+            "count": len(picks),
+            "settled_t5_count": sum(pick.get("return_t5_pct") is not None for pick in picks),
+            "mean_t1_pct": safe_mean(pick.get("return_t1_pct") for pick in picks),
+            "mean_t3_pct": safe_mean(pick.get("return_t3_pct") for pick in picks),
+            "mean_t5_pct": safe_mean(pick.get("return_t5_pct") for pick in picks),
+            "mean_market_excess_t5_pct": safe_mean(
+                pick.get("market_excess_t5_pct") for pick in picks
+            ),
+        }
+        for label, picks in sorted(grouped.items())
+    }
+
+
+def build_cross_sectional_evaluation(daily: List[Dict[str, Any]]) -> Dict[str, Any]:
+    settled_days = sum(item.get("settlement_status") == "SETTLED_T5" for item in daily)
+    teams = {}
+    for team_key, signal_definition in (
+        ("legacy_l1", "frozen_signal_day_ret_1d"),
+        ("path_l1", "frozen_best_channel_percentile"),
+    ):
+        daily_metrics = [
+            {"trade_date": item["trade_date"], "market_regime": item["market_regime"],
+             "metrics": daily_cross_section(item[team_key]["picks"])}
+            for item in daily
+        ]
+        teams[team_key] = {
+            "signal_definition": signal_definition,
+            "daily": daily_metrics,
+            "mean_rank_ic": {
+                return_key: safe_mean(
+                    row["metrics"][return_key].get("rank_ic") for row in daily_metrics
+                )
+                for return_key in ("return_t1_pct", "return_t3_pct", "return_t5_pct")
+            },
+            "stability": transition_metrics(daily, team_key),
+        }
+    path_rows = [
+        (pick.get("primary_path") or "UNCLASSIFIED", pick)
+        for item in daily for pick in item["path_l1"]["picks"]
+    ]
+    regime_rows = [
+        (item.get("market_regime") or "UNKNOWN", pick)
+        for item in daily for pick in item["path_l1"]["picks"]
+    ]
+    return {
+        "schema_version": "l1_cross_sectional_evaluation_v0.1",
+        "status": "ACTIVE_READ_ONLY" if settled_days >= CROSS_SECTION_MIN_DAYS else "INSUFFICIENT_SETTLED_DAYS",
+        "settled_days": settled_days,
+        "minimum_settled_days": CROSS_SECTION_MIN_DAYS,
+        "point_in_time_policy": {
+            "signal_source": "frozen_l1_path_observer_artifact",
+            "legacy_signal": "signal-day ret_1d stored in candidate features",
+            "path_signal": "signal-day best_channel_percentile stored in path_admission",
+            "outcome_source": "future fact_daily rows after signal trade_date",
+            "current_attributes_used_for_historical_ranking": False,
+        },
+        "teams": teams,
+        "path_stratification": stratified_summary(path_rows),
+        "market_regime_stratification": stratified_summary(regime_rows),
+        "decision_authority": "NONE_OBSERVATION_ONLY",
+    }
+
+
 def summarize_team(picks: List[Dict[str, Any]], target_count: int = TEAM_TARGET):
     settled = [pick for pick in picks if pick.get("status") == "SETTLED_T5"]
     scores = [float(pick["points"]) for pick in settled]
@@ -355,15 +574,41 @@ def build_scorecard(conn, snapshots: List[Dict[str, Any]]):
             item["symbol"]: item
             for item in evaluate_symbols(conn, trade_date, union, future, median)
         }
-        legacy_picks = [outcomes[symbol] for symbol in legacy_symbols]
-        path_picks = [outcomes[symbol] for symbol in path_symbols]
+        candidates = {
+            str(candidate.get("symbol")): candidate
+            for candidate in snapshot.get("candidates") or []
+            if candidate.get("symbol")
+        }
+        path_admission = {
+            str(item.get("symbol")): item
+            for item in teams.get("path_admission") or []
+            if item.get("symbol")
+        }
+        legacy_picks = [
+            annotate_pick(
+                outcomes[symbol], candidates.get(symbol, {}),
+                fnum((candidates.get(symbol, {}).get("features") or {}).get("ret_1d")),
+                "frozen_signal_day_ret_1d",
+            )
+            for symbol in legacy_symbols
+        ]
+        path_picks = [
+            annotate_pick(
+                outcomes[symbol], candidates.get(symbol, {}),
+                fnum(path_admission.get(symbol, {}).get("best_channel_percentile")),
+                "frozen_best_channel_percentile",
+            )
+            for symbol in path_symbols
+        ]
         new_only_symbols = [symbol for symbol in path_symbols if symbol not in set(legacy_symbols)]
-        new_only_picks = [outcomes[symbol] for symbol in new_only_symbols]
+        path_pick_map = {pick["symbol"]: pick for pick in path_picks}
+        new_only_picks = [path_pick_map[symbol] for symbol in new_only_symbols]
         legacy_summary = summarize_team(legacy_picks)
         path_summary = summarize_team(path_picks)
         winner, difference = day_winner(legacy_summary, path_summary)
         daily.append({
             "trade_date": trade_date,
+            "market_regime": snapshot.get("market_regime_observed") or "UNKNOWN",
             "settlement_status": "SETTLED_T5" if len(future) >= 5 else "PENDING_T5",
             "future_dates": future, "market_median_t5_pct": median,
             "legacy_l1": {"summary": legacy_summary, "picks": legacy_picks},
@@ -421,7 +666,7 @@ def build_scorecard(conn, snapshots: List[Dict[str, Any]]):
             "checks": checks,
             "note": "Passing only permits a separate canary design review; it never activates L2-L4.",
         }
-    return daily, league, promotion
+    return daily, league, promotion, build_cross_sectional_evaluation(daily)
 
 
 def render_markdown(payload: Dict[str, Any]) -> str:
@@ -454,7 +699,24 @@ def render_markdown(payload: Dict[str, Any]) -> str:
             f"{display(summary['tail_loss_rate_mae5'])} |"
         )
     lines.extend([
-        "", "## 3. Daily Matches", "",
+        "", "## 3. Cross-Sectional Evaluation", "",
+        f"- status: `{payload['cross_sectional_evaluation']['status']}`",
+        f"- settled days: {payload['cross_sectional_evaluation']['settled_days']}",
+        "- authority: `NONE_OBSERVATION_ONLY`", "",
+        "| Team | Mean IC T+1 | Mean IC T+3 | Mean IC T+5 | Turnover | Signal autocorrelation |",
+        "|---|---:|---:|---:|---:|---:|",
+    ])
+    for team_key, label in (("legacy_l1", "LEGACY_L1"), ("path_l1", "PATH_L1")):
+        team = payload["cross_sectional_evaluation"]["teams"][team_key]
+        lines.append(
+            f"| {label} | {display(team['mean_rank_ic']['return_t1_pct'])} | "
+            f"{display(team['mean_rank_ic']['return_t3_pct'])} | "
+            f"{display(team['mean_rank_ic']['return_t5_pct'])} | "
+            f"{display(team['stability']['mean_candidate_turnover'])} | "
+            f"{display(team['stability']['mean_signal_rank_autocorrelation'])} |"
+        )
+    lines.extend([
+        "", "## 4. Daily Matches", "",
         "| Date | Status | Legacy points | Path points | Difference | Winner | New-only points |",
         "|---|---|---:|---:|---:|---|---:|",
     ])
@@ -467,10 +729,10 @@ def render_markdown(payload: Dict[str, Any]) -> str:
             f"{item['winner']} | {display(item['new_only']['summary']['mean_points'])} |"
         )
     lines.extend([
-        "", "## 4. Interpretation Boundary", "",
+        "", "## 5. Interpretation Boundary", "",
         "This scorecard measures post-selection price direction from the signal-day close. "
         "It is not an executable return, buy instruction, or L2-L4 verdict.",
-        "", "## 5. Blocked Actions", "",
+        "", "## 6. Blocked Actions", "",
     ])
     lines.extend(f"- `{action}`" for action in payload["blocked_actions"])
     return "\n".join(lines) + "\n"
@@ -488,11 +750,11 @@ def main() -> int:
     paths = discover_input_paths(args.input, args.input_dir)
     sources, snapshots = load_snapshots(paths, args.forward_start)
     with DBGateway(DB_PATH, read_only=True) as conn:
-        daily, league, promotion = build_scorecard(conn, snapshots)
+        daily, league, promotion, cross_sectional = build_scorecard(conn, snapshots)
     start, end = snapshots[0]["trade_date"], snapshots[-1]["trade_date"]
     batch = start.replace("-", "") if start == end else f"{start.replace('-', '')}_{end.replace('-', '')}"
     payload = {
-        "schema_version": "l1_simple_scorecard_v0.1", "batch_id": batch,
+        "schema_version": "l1_simple_scorecard_v0.2", "batch_id": batch,
         "generated_at": datetime.now().astimezone().isoformat(),
         "mode": "read_only_evaluation", "observer_only": True,
         "no_trade_signal": True, "source_reports": sources,
@@ -504,6 +766,7 @@ def main() -> int:
         },
         "point_rules": POINT_RULES, "daily_matches": daily,
         "league_table": league, "promotion_gate": promotion,
+        "cross_sectional_evaluation": cross_sectional,
         "blocked_actions": BLOCKED_ACTIONS,
     }
     output_dir = Path(args.output_dir)

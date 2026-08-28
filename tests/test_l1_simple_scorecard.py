@@ -28,7 +28,15 @@ class L1SimpleScorecardTest(unittest.TestCase):
                     "schema_version": "l1_scorecard_teams_v0.1",
                     "legacy_l1_top50": ["000001.SZ"],
                     "path_l1_top50": ["000002.SZ"],
+                    "path_admission": [{
+                        "symbol": "000002.SZ",
+                        "best_channel_percentile": 0.9,
+                    }],
                 },
+                "candidates": [
+                    {"symbol": "000001.SZ", "features": {"ret_1d": 1.0}},
+                    {"symbol": "000002.SZ", "features": {"ret_1d": 2.0}},
+                ],
             }],
         }
 
@@ -90,6 +98,45 @@ class L1SimpleScorecardTest(unittest.TestCase):
         self.assertEqual(TOOL.day_winner(legacy, path), ("DRAW", 0.2))
         path["coverage"] = 0.5
         self.assertEqual(TOOL.day_winner(legacy, path), ("PENDING_COVERAGE", None))
+
+    def test_spearman_pairs_handles_direction_and_minimum_count(self):
+        increasing = [(float(index), float(index)) for index in range(10)]
+        decreasing = [(float(index), float(10 - index)) for index in range(10)]
+        self.assertEqual(TOOL.spearman_pairs(increasing)["rank_ic"], 1.0)
+        self.assertEqual(TOOL.spearman_pairs(decreasing)["rank_ic"], -1.0)
+        self.assertEqual(
+            TOOL.spearman_pairs(increasing[:9])["status"],
+            "INSUFFICIENT_COUNT",
+        )
+
+    def test_transition_metrics_reports_turnover_and_rank_stability(self):
+        def day(trade_date, rows):
+            return {
+                "trade_date": trade_date,
+                "legacy_l1": {"picks": rows},
+            }
+
+        daily = [
+            day("2026-08-01", [
+                {"symbol": f"S{index}", "signal_score": float(index)}
+                for index in range(10)
+            ]),
+            day("2026-08-02", [
+                {"symbol": f"S{index}", "signal_score": float(index)}
+                for index in range(5, 15)
+            ]),
+        ]
+        result = TOOL.transition_metrics(daily, "legacy_l1")
+        self.assertAlmostEqual(result["mean_candidate_turnover"], 2 / 3, places=6)
+        self.assertEqual(
+            result["transitions"][0]["signal_rank_autocorrelation"]["status"],
+            "INSUFFICIENT_COUNT",
+        )
+
+    def test_cross_sectional_evaluation_never_grants_authority(self):
+        evaluation = TOOL.build_cross_sectional_evaluation([])
+        self.assertEqual(evaluation["status"], "INSUFFICIENT_SETTLED_DAYS")
+        self.assertEqual(evaluation["decision_authority"], "NONE_OBSERVATION_ONLY")
 
 
 if __name__ == "__main__":

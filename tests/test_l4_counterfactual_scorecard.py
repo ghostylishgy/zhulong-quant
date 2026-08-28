@@ -166,6 +166,30 @@ class L4CounterfactualScorecardTest(unittest.TestCase):
         self.assertEqual(result["evaluation_status"], "NOT_MATURED_OR_INCOMPLETE")
         self.assertIn("DAILY_WINDOW_INCOMPLETE", result["exclusion_reasons"])
 
+    def test_l4_execution_path_uses_persisted_notary_presence(self):
+        self.assertEqual(MOD._l4_execution_path("HOLD", ""), "FULL_COURT")
+        self.assertEqual(MOD._l4_execution_path('', '{"ruling":"HOLD"}'), 'FULL_COURT')
+        self.assertEqual(MOD._l4_execution_path("", ""), "SIMPLIFIED")
+
+    def test_path_stats_do_not_mix_full_court_and_simplified(self):
+        rows = [
+            {
+                "l4_execution_path": "FULL_COURT", "verdict": "HOLD",
+                "final_score": 58, "l3_audit_score": 48,
+                "market_sentiment": 0.5, "gross_return_pct": 1.0,
+            },
+            {
+                "l4_execution_path": "SIMPLIFIED", "verdict": "VETO",
+                "final_score": 49, "l3_audit_score": 48,
+                "market_sentiment": 0.5, "gross_return_pct": -1.0,
+            },
+        ]
+        stats = MOD._path_stats(rows)
+        self.assertEqual(stats["FULL_COURT"]["verdict_counts"], {"HOLD": 1})
+        self.assertEqual(stats["SIMPLIFIED"]["verdict_counts"], {"VETO": 1})
+        self.assertEqual(stats["FULL_COURT"]["avg_final_score"], 58.0)
+        self.assertEqual(stats["SIMPLIFIED"]["avg_final_score"], 49.0)
+
     def test_build_scorecard_separates_proxy_and_actual_pass(self):
         conn = duckdb.connect(str(self.db_path))
         conn.executemany(
@@ -189,6 +213,9 @@ class L4CounterfactualScorecardTest(unittest.TestCase):
             )
         self.assertEqual(payload["summary"]["bound_versioned_by_verdict"]["PASS"]["samples"], 1)
         self.assertEqual(payload["summary"]["bound_versioned_by_verdict"]["HOLD"]["samples"], 1)
+        self.assertEqual(
+            payload["summary"]["all_audit_by_l4_path"]["SIMPLIFIED"]["samples"], 2
+        )
         self.assertEqual(payload["summary"]["actual_shadow_pass_execution"]["positions"], 1)
         self.assertEqual(payload["summary"]["review_status"], "NOT_ENOUGH_BOUND_MATURED_SAMPLES")
 

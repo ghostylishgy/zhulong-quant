@@ -990,6 +990,160 @@ class PromptContractV4Test(unittest.TestCase):
         self.assertEqual(neutral, [])
         self.assertIn("direction:lhb:claim_vs_neutral_evidence", directional)
 
+    def test_zero_structured_flow_rejects_direction_synonyms(self):
+        court = self.court()
+        packet = court._build_evidence_packet(
+            MODULE.Candidate(
+                symbol="600000.SH",
+                zeta_lhb_net=0,
+                zeta_inst_buy=0,
+                zeta_hot_money=0,
+                zeta_margin_delta=0,
+            ),
+            MODULE.L3Result(symbol="600000.SH", verdict=MODULE.Verdict.PASS),
+        )
+        evidence = court._render_evidence_packet(packet)
+        claims = {
+            "\u9f99\u864e\u699c\u51c0\u989d\u4e3a\u6b63": "lhb",
+            "\u9f99\u864e\u699c\u51c0\u989d\u4e3a\u8d1f": "lhb",
+            "\u673a\u6784\u65b9\u5411\u4e3a\u6b63": "institution",
+            "\u673a\u6784\u65b9\u5411\u4e3a\u8d1f": "institution",
+            "\u6e38\u8d44\u65b9\u5411\u4e3a\u6b63": "hot_money",
+            "\u6e38\u8d44\u65b9\u5411\u4e3a\u8d1f": "hot_money",
+            "\u878d\u8d44\u4f59\u989d\u53d8\u5316\u4e3a\u6b63": "margin",
+            "\u878d\u8d44\u4f59\u989d\u53d8\u5316\u4e3a\u8d1f": "margin",
+        }
+        for claim, label in claims.items():
+            with self.subTest(claim=claim):
+                issues = MODULE._find_evidence_contract_issues(claim, evidence)
+                self.assertIn(
+                    f"direction:{label}:claim_vs_neutral_evidence",
+                    issues,
+                )
+
+        self.assertEqual(
+            MODULE._find_evidence_contract_issues(
+                "\u672a\u89c1\u9f99\u864e\u699c\u51c0\u989d\u4e3a\u6b63\uff0c\u673a\u6784\u672a\u51cf\u4ed3\u3002",
+                evidence,
+            ),
+            [],
+        )
+
+    def test_structured_numeric_direction_synonyms_match_or_conflict(self):
+        court = self.court()
+        positive_packet = court._build_evidence_packet(
+            MODULE.Candidate(
+                symbol="600000.SH",
+                zeta_lhb_net=1,
+                zeta_inst_buy=1,
+                zeta_hot_money=1,
+                zeta_margin_delta=1,
+            ),
+            MODULE.L3Result(symbol="600000.SH", verdict=MODULE.Verdict.PASS),
+        )
+        negative_packet = court._build_evidence_packet(
+            MODULE.Candidate(
+                symbol="600000.SH",
+                zeta_lhb_net=-1,
+                zeta_inst_buy=-1,
+                zeta_hot_money=-1,
+                zeta_margin_delta=-1,
+            ),
+            MODULE.L3Result(symbol="600000.SH", verdict=MODULE.Verdict.PASS),
+        )
+        positive_evidence = court._render_evidence_packet(positive_packet)
+        negative_evidence = court._render_evidence_packet(negative_packet)
+        positive_claims = {
+            "\u9f99\u864e\u699c\u51c0\u989d\u4e3a\u6b63": "lhb",
+            "\u673a\u6784\u65b9\u5411\u4e3a\u6b63": "institution",
+            "\u6e38\u8d44\u65b9\u5411\u4e3a\u6b63": "hot_money",
+            "\u878d\u8d44\u4f59\u989d\u53d8\u5316\u4e3a\u6b63": "margin",
+        }
+        negative_claims = {
+            "\u9f99\u864e\u699c\u51c0\u989d\u4e3a\u8d1f": "lhb",
+            "\u673a\u6784\u65b9\u5411\u4e3a\u8d1f": "institution",
+            "\u6e38\u8d44\u65b9\u5411\u4e3a\u8d1f": "hot_money",
+            "\u878d\u8d44\u4f59\u989d\u53d8\u5316\u4e3a\u8d1f": "margin",
+        }
+        for claim, label in positive_claims.items():
+            with self.subTest(claim=claim, evidence="positive"):
+                self.assertEqual(
+                    MODULE._find_evidence_contract_issues(claim, positive_evidence),
+                    [],
+                )
+            with self.subTest(claim=claim, evidence="negative"):
+                self.assertIn(
+                    f"direction:{label}:positive_claim_vs_negative_evidence",
+                    MODULE._find_evidence_contract_issues(claim, negative_evidence),
+                )
+        for claim, label in negative_claims.items():
+            with self.subTest(claim=claim, evidence="negative"):
+                self.assertEqual(
+                    MODULE._find_evidence_contract_issues(claim, negative_evidence),
+                    [],
+                )
+            with self.subTest(claim=claim, evidence="positive"):
+                self.assertIn(
+                    f"direction:{label}:negative_claim_vs_positive_evidence",
+                    MODULE._find_evidence_contract_issues(claim, positive_evidence),
+                )
+
+    def test_judge_zero_structured_flow_direction_fails_closed(self):
+        court = self.court()
+        packet = court._build_evidence_packet(
+            MODULE.Candidate(symbol="600000.SH", zeta_lhb_net=0),
+            MODULE.L3Result(symbol="600000.SH", verdict=MODULE.Verdict.PASS),
+        )
+        payload = (
+            '{"verdict":"PASS","eligibility_score":72,"confidence":81,'
+            '"ruling":"\u9f99\u864e\u699c\u51c0\u989d\u4e3a\u6b63\uff0c\u8d44\u91d1\u8bc1\u636e\u652f\u6301\u901a\u8fc7",'
+            '"decisive_evidence_refs":["ZETA.LHB_NET"],"unresolved_gaps":[]}'
+        )
+        with patch.object(MODULE, "api_call_with_retry", return_value=FakeResponse(payload)):
+            result = court._call_judge(
+                "600000.SH",
+                {"score": 82, "report": "\u91cf\u4ef7\u652f\u6301"},
+                {"score": 48, "report": "\u65e0\u72ec\u7acb\u786c\u98ce\u9669"},
+                0.5,
+                "SIDE",
+                "",
+                evidence_packet=packet,
+            )
+        self.assertEqual(result["final_verdict"], "HOLD")
+        self.assertEqual(result["judge_parse_mode"], "evidence_guard")
+        self.assertEqual(result["semantic_quality"], "UNSUPPORTED_EVIDENCE")
+        self.assertIn(
+            "direction:lhb:claim_vs_neutral_evidence",
+            result["unsupported_claims"],
+        )
+        self.assertGreaterEqual(result["S_v3"], MODULE.L4_WATCH_THRESHOLD)
+        self.assertLess(result["S_v3"], MODULE.L4_PASS_THRESHOLD)
+
+    def test_notary_rejects_zero_structured_flow_direction(self):
+        court = self.court()
+        packet = court._build_evidence_packet(
+            MODULE.Candidate(symbol="600000.SH", zeta_inst_buy=0),
+            MODULE.L3Result(symbol="600000.SH", verdict=MODULE.Verdict.PASS),
+        )
+        payload = (
+            '{"stock_code":"600000.SH","final_verdict":"HOLD",'
+            '"eligibility_score":60,"confidence":80,'
+            '"dominant_logic":"\u673a\u6784\u65b9\u5411\u4e3a\u6b63\uff0c\u63d0\u4f9b\u8d44\u91d1\u65c1\u8bc1",'
+            '"bull_summary":"\u673a\u6784\u65b9\u5411\u4e3a\u6b63",'
+            '"bear_summary":"\u98ce\u9669\u4ecd\u5f85\u786e\u8ba4","fatal_risk_flag":false}'
+        )
+        with patch.object(MODULE, "api_call_with_retry", return_value=FakeResponse(payload)):
+            result = court.post_audit_notary(
+                MODULE.Candidate(symbol="600000.SH"),
+                {},
+                {"final_verdict": "HOLD", "S_v3": 60, "ruling": "\u8bc1\u636e\u4e0d\u8db3"},
+                "\u91cf\u4ef7\u652f\u6301",
+                "\u98ce\u9669\u5f85\u9a8c\u8bc1",
+                evidence_packet=court._render_evidence_packet(packet),
+            )
+        self.assertEqual(result["notary_verdict"], "NOTARY_UNSUPPORTED_EVIDENCE")
+        self.assertFalse(result["hard_veto"])
+
     def test_advocate_rejects_reference_dump(self):
         court = self.court()
         packet = court._build_evidence_packet(
@@ -1039,7 +1193,7 @@ class PromptContractV4Test(unittest.TestCase):
         fatal = court._local_ruling({"score": 72}, {"score": 82}, 0.5)
         self.assertGreater(minor["S_v3"], fatal["S_v3"])
 
-    def test_local_ruling_neutralizes_guarded_model_scores(self):
+    def test_local_ruling_neutralizes_guarded_scores_and_uses_configured_bands(self):
         court = self.court()
         ruling = court._local_ruling(
             {"score": 90, "semantic_quality": "UNSUPPORTED_EVIDENCE"},
@@ -1047,7 +1201,14 @@ class PromptContractV4Test(unittest.TestCase):
             0.5,
         )
         self.assertEqual(ruling["S_v3"], 50.0)
-        self.assertEqual(ruling["final_verdict"], "HOLD")
+        expected = (
+            "PASS"
+            if ruling["S_v3"] >= MODULE.L4_PASS_THRESHOLD
+            else "HOLD"
+            if ruling["S_v3"] >= MODULE.L4_WATCH_THRESHOLD
+            else "VETO"
+        )
+        self.assertEqual(ruling["final_verdict"], expected)
         self.assertIn("ignored_guarded=Bull,Bear", ruling["ruling"])
 
     def test_l4_evidence_guard_downgrades_unsupported_bull_and_bear(self):
@@ -1175,6 +1336,32 @@ class PromptContractV4Test(unittest.TestCase):
         self.assertEqual(result["notary_verdict"], "NOTARY_INCONSISTENT")
         self.assertFalse(result["hard_veto"])
 
+    def test_notary_accepts_flow_facts_from_authoritative_evidence_packet(self):
+        court = self.court()
+        payload = (
+            '{"stock_code":"300016.SZ","final_verdict":"HOLD",'
+            '"eligibility_score":60,"confidence":80,'
+            '"dominant_logic":"龙虎榜净买入提供交易活跃旁证，融资余额数据保持中性",'
+            '"bull_summary":"龙虎榜净买入为正向旁证",'
+            '"bear_summary":"融资余额数据未形成新增支持","fatal_risk_flag":false}'
+        )
+        evidence_packet = (
+            '[ZETA.LHB_NET] LHB=165000000 yuan\n'
+            '[ZETA.MARGIN_DELTA] MARG=0 yuan\n'
+            '[L2.FACT_TAGS] #lhb_buy'
+        )
+        with patch.object(MODULE, "api_call_with_retry", return_value=FakeResponse(payload)):
+            result = court.post_audit_notary(
+                MODULE.Candidate(symbol="300016.SZ"),
+                {},
+                {"final_verdict": "HOLD", "S_v3": 60, "ruling": "证据不足"},
+                "量价支持",
+                "资金持续性待验证",
+                evidence_packet=evidence_packet,
+            )
+        self.assertEqual(result["notary_verdict"], "HOLD")
+        self.assertTrue(result["notary_pass"])
+
     def test_notary_recorder_cannot_cap_judge_pass(self):
         court = self.court()
         result = MODULE.L4Result(symbol="600000.SH")
@@ -1187,6 +1374,23 @@ class PromptContractV4Test(unittest.TestCase):
         )
         self.assertEqual(score, 76)
         self.assertFalse(terminal)
+
+    def test_judge_hold_score_is_clamped_to_hold_band(self):
+        court = self.court()
+        lower = MODULE.L4_WATCH_THRESHOLD
+        upper = MODULE.L4_PASS_THRESHOLD - 1
+        for raw_score, expected in ((lower - 4, lower), (60, 60), (upper + 8, upper)):
+            with self.subTest(raw_score=raw_score):
+                result = MODULE.L4Result(symbol="600000.SH")
+                score, terminal = court._apply_court_verdict_cap(
+                    result,
+                    raw_score,
+                    {"final_verdict": "HOLD", "S_v3": 56},
+                    "HOLD",
+                    False,
+                )
+                self.assertEqual(score, expected)
+                self.assertFalse(terminal)
 
     def test_notary_strict_flags_do_not_restore_verdict_authority(self):
         court = self.court()
